@@ -48,7 +48,7 @@ async function getDB() {
  * Find one document in a collection
  * @param {string} collectionName - Name of the collection
  * @param {Object} filter - Filter for the document
- * @returns {Promise<Object>}
+ * @returns {Promise<Object>} - The document found
  */
 export async function findOne(collectionName, filter) {
 	try {
@@ -60,6 +60,7 @@ export async function findOne(collectionName, filter) {
 		return result;
 	} catch (error) {
 		console.error("Error finding data", error);
+		return { error: "Internal server error" };
 	}
 }
 
@@ -67,7 +68,7 @@ export async function findOne(collectionName, filter) {
  * Find documents in a collection
  * @param {string} collectionName - Name of the collection
  * @param {Object} filter - Filter for the documents
- * @returns {Promise<Array>}
+ * @returns {Promise<Array>} - The documents found
  */
 export async function find(collectionName, filter) {
 	try {
@@ -79,14 +80,15 @@ export async function find(collectionName, filter) {
 		return result;
 	} catch (error) {
 		console.error("Error finding data", error);
+		return { error: "Internal server error" };
 	}
 }
 
 /**
  * Insert one document into a collection
  * @param {string} collectionName - Name of the collection
- * @param {Object} data - Data to insert
- * @returns {Promise<InsertOneResult>}
+ * @param {Object} data - Document to insert
+ * @returns {Promise<InsertOneResult>} - The result of the insert operation
  */
 export async function insertOne(collectionName, data) {
 	try {
@@ -98,14 +100,15 @@ export async function insertOne(collectionName, data) {
 		return result;
 	} catch (error) {
 		console.error("Error inserting data", error);
+		return { error: "Internal server error" };
 	}
 }
 
 /**
  * Insert many documents into a collection
  * @param {string} collectionName - Name of the collection
- * @param {Object[]} data - Data to insert
- * @returns {Promise<InsertManyResult>}
+ * @param {Object[]} data - Array of documents to insert
+ * @returns {Promise<InsertManyResult>} - The result of the insert operation
  */
 export async function insertMany(collectionName, data) {
 	try {
@@ -118,6 +121,7 @@ export async function insertMany(collectionName, data) {
 		return result;
 	} catch (error) {
 		console.error("Error inserting data", error);
+		return { error: "Internal server error" };
 	}
 }
 
@@ -126,7 +130,7 @@ export async function insertMany(collectionName, data) {
  * @param {string} collectionName - Name of the collection
  * @param {Object} filter - Filter for the document to update
  * @param {Object} data - Data to update
- * @returns {Promise<UpdateResult>}
+ * @returns {Promise<UpdateResult>} - The result of the update operation
  */
 export async function updateOne(collectionName, filter, data) {
 	try {
@@ -138,6 +142,7 @@ export async function updateOne(collectionName, filter, data) {
 		return result;
 	} catch (error) {
 		console.error("Error updating data", error);
+		return { error: "Internal server error" };
 	}
 }
 
@@ -145,7 +150,7 @@ export async function updateOne(collectionName, filter, data) {
  * Delete one document from a collection
  * @param {string} collectionName - Name of the collection
  * @param {Object} filter - Filter for the document to delete
- * @returns {Promise<DeleteResult>}
+ * @returns {Promise<DeleteResult>} - The result of the delete operation
  */
 export async function deleteOne(collectionName, filter) {
 	try {
@@ -153,18 +158,19 @@ export async function deleteOne(collectionName, filter) {
 		const db = await getDB();
 		const collection = db.collection(collectionName);
 		await collection.deleteOne(filter);
-		const result = await collection.deleteOne(filter);
+		const DeleteResult = await collection.deleteOne(filter);
 		closeDB();
-		return result;
+		return DeleteResult;
 	} catch (error) {
 		console.error("Error deleting data", error);
+		return { error: "Internal server error" };
 	}
 }
 
 /**
  * Get collection from database
  * @param {string} collectionName - Name of the collection
- * @returns {Promise<Collection>}
+ * @returns {Promise<getCollection>} - The collection
  */
 export async function getCollection(collectionName) {
 	try {
@@ -174,5 +180,6 @@ export async function getCollection(collectionName) {
 		return db.collection(collectionName);
 	} catch (error) {
 		console.error("Error getting collection", error);
+		return { error: "Internal server error" };
 	}
 }

@@ -47,26 +47,36 @@ async function getSpotifyData() {
  */
 export async function searchSpotify(query, types = ["track"], offset = 0) {
 	const limit = 10;
-	const token = await getSpotifyData();
-	const response = await fetch(`https://api.spotify.com/v1/search?q=${query}&type=${types.join(",")}&limit=${limit}&offset=${offset}`, {
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-	});
-	return response.json();
+	try {
+		const token = await getSpotifyData();
+		const response = await fetch(`https://api.spotify.com/v1/search?q=${query}&type=${types.join(",")}&limit=${limit}&offset=${offset}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return response.json();
+	} catch (error) {
+		console.error(error);
+		return { error: "Internal server error" };
+	}
 }
 /**
  * Get an artist from spotify
  * @param {String} id - Required
  */
 export async function getSpotifyArtist(id) {
-	const token = await getSpotifyData();
-	const respose = await fetch(`https://api.spotify.com/v1/artists/${id}`, {
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-	});
-	return respose.json();
+	try {
+		const token = await getSpotifyData();
+		const response = await fetch(`https://api.spotify.com/v1/artists/${id}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return response.json();
+	} catch (error) {
+		console.error(error);
+		return { error: "Internal server error" };
+	}
 }
 
 /**
@@ -74,13 +84,18 @@ export async function getSpotifyArtist(id) {
  * @param {Array} ids - Required
  */
 export async function getSpotifyArtists(ids) {
-	const token = await getSpotifyData();
-	const respose = await fetch(`https://api.spotify.com/v1/artists?ids=${ids.join(",")}`, {
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-	});
-	return respose.json();
+	try {
+		const token = await getSpotifyData();
+		const respose = await fetch(`https://api.spotify.com/v1/artists?ids=${ids.join(",")}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return respose.json();
+	} catch (error) {
+		console.error(error);
+		return { error: "Internal server error" };
+	}
 }
 
 /**
@@ -88,13 +103,18 @@ export async function getSpotifyArtists(ids) {
  * @param {String} id - Required
  */
 export async function getSpotifyAlbum(id) {
-	const token = await getSpotifyData();
-	const respose = await fetch(`https://api.spotify.com/v1/albums/${id}`, {
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-	});
-	return respose.json();
+	try {
+		const token = await getSpotifyData();
+		const respose = await fetch(`https://api.spotify.com/v1/albums/${id}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return respose.json();
+	} catch (error) {
+		console.error(error);
+		return { error: "Internal server error" };
+	}
 }
 
 /**
@@ -102,13 +122,18 @@ export async function getSpotifyAlbum(id) {
  * @param {Array} ids - Required
  */
 export async function getSpotifyAlbums(ids) {
-	const token = await getSpotifyData();
-	const respose = await fetch(`https://api.spotify.com/v1/albums?ids=${ids.join(",")}`, {
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-	});
-	return respose.json();
+	try {
+		const token = await getSpotifyData();
+		const respose = await fetch(`https://api.spotify.com/v1/albums?ids=${ids.join(",")}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return respose.json();
+	} catch (error) {
+		console.error(error);
+		return { error: "Internal server error" };
+	}
 }
 
 /**
@@ -116,13 +141,18 @@ export async function getSpotifyAlbums(ids) {
  * @param {String} id - Required
  */
 export async function getSpotifyTrack(id) {
-	const token = await getSpotifyData();
-	const respose = await fetch(`https://api.spotify.com/v1/tracks/${id}`, {
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-	});
-	return respose.json();
+	try {
+		const token = await getSpotifyData();
+		const respose = await fetch(`https://api.spotify.com/v1/tracks/${id}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return respose.json();
+	} catch (error) {
+		console.error(error);
+		return { error: "Internal server error" };
+	}
 }
 
 /**
@@ -130,11 +160,16 @@ export async function getSpotifyTrack(id) {
  * @param {Array} ids - Required
  */
 export async function getSpotifyTracks(ids) {
-	const token = await getSpotifyData();
-	const respose = await fetch(`https://api.spotify.com/v1/tracks?ids=${ids}`, {
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-	});
-	return respose.json();
+	try {
+		const token = await getSpotifyData();
+		const respose = await fetch(`https://api.spotify.com/v1/tracks?ids=${ids}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return respose.json();
+	} catch (error) {
+		console.error(error);
+		return { error: "Internal server error" };
+	}
 }
