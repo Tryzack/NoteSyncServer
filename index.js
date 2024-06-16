@@ -52,4 +52,5 @@ app.listen(port, () => {
 
 /* testing */
 /* const result = await spotifyComponent.getSpotifyArtist("4Z8W4fKeB5YxbusRsdQVPb");
-console.log(result); */
+console.log(result);
+ */
