@@ -1,14 +1,17 @@
-//search
-import { searchSpotify, getSpotifyArtists, getSpotifyArtist } from "../utils/spotifyComponent.js";
-import { find, insertMany, findOne, connectToDB, closeDB } from "../utils/dbComponent.js";
+import { searchSpotify, getSpotifyArtists, getSpotifyArtist } from "../../utils/spotifyComponent.js";
+import { find, insertMany, findOne, connectToDB, closeDB } from "../../utils/dbComponent.js";
 
+/**
+ * Search for tracks
+ * @param {String} req.query.filter - Required
+ * @param {Number} req.query.skip - Optional
+ * @returns {Array} - The tracks found
+ */
 export default async function searchTracks(req, res) {
-	//connect to database
 	const connected = await connectToDB();
 	if (connected.error) {
 		return res.status(500).json(connected);
 	}
-	//search in database first
 	const reqFilter = req.query.filter;
 	const filter = { name: { $regex: ".*" + reqFilter + ".*", $options: "i" } };
 	const sort = { name: 1 };
@@ -18,7 +21,6 @@ export default async function searchTracks(req, res) {
 	if (result.error) {
 		return res.status(500).json(result);
 	}
-	//if not found in database not enough results found (less than limit) search in spotify
 	if (result.length < 10) {
 		const spotifyResult = await searchSpotify(reqFilter, ["track"], skip, limit);
 		if (spotifyResult.error) {
@@ -26,7 +28,7 @@ export default async function searchTracks(req, res) {
 			return res.status(500).json({ error: "Internal server error" });
 		}
 		const items = spotifyResult.tracks.items || [];
-		// sum the results from the database and spotify (and remove duplicates by track name)
+
 		const newTrackIDs = [];
 		const newArtistIDs = [];
 		const newAlbumIDs = [];
@@ -77,16 +79,14 @@ export default async function searchTracks(req, res) {
 			});
 		}
 		res.send([...result, ...responseTracks]);
-		//check if the artists, albums and tracks are already in the database
 
 		const artistResult = await find("artist", { refId: { $in: newArtistIDs } });
 		if (artistResult.error) {
 			console.log("Error finding artists", artistResult.error);
 		}
-		// if not found insert the new artists into the array
+
 		newArtistIDs.forEach((id, index) => {
 			if (!artistResult.find((artist) => artist.refId === id)) {
-				// search for the artist id in anotherNewArtists
 				if (!anotherNewArtists.find((artist) => artist.id === id)) {
 					anotherNewArtists.push(newArtists[index]);
 				}
@@ -97,10 +97,9 @@ export default async function searchTracks(req, res) {
 		if (albumResult.error) {
 			console.log("Error finding albums", albumResult.error);
 		}
-		// if not found insert the new albums into the array
+
 		newAlbumIDs.forEach((id, index) => {
 			if (!albumResult.find((album) => album.refId === id)) {
-				// search for the album id in anotherNewAlbums
 				if (!anotherNewAlbums.find((album) => album.id === id)) {
 					anotherNewAlbums.push(newAlbums[index]);
 				}
@@ -111,10 +110,9 @@ export default async function searchTracks(req, res) {
 		if (trackResult.error) {
 			console.log("Error finding tracks", trackResult.error);
 		}
-		// if not found insert the new tracks into the array
+
 		newTrackIDs.forEach((id, index) => {
 			if (!trackResult.find((track) => track.refId === id)) {
-				// search for the track id in anotherNewTracks
 				if (!anotherNewTracks.find((track) => track.id === id)) {
 					anotherNewTracks.push(newTracks[index]);
 				}
