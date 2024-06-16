@@ -1,15 +1,12 @@
 // spotify component
 // This component is used to get api data from spotify and send it to the database (not axios)
-import dotenv from "dotenv";
 import { findOne, updateOne } from "./dbComponent.js";
-
-dotenv.config();
 
 const clientId = process.env.SPOTIFY_CLIENT_ID;
 const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
 //get a new token from spotify
-function getNewToken() {
+async function getNewToken() {
 	fetch("https://accounts.spotify.com/api/token", {
 		method: "POST",
 		headers: {
@@ -24,15 +21,19 @@ function getNewToken() {
 		.then((res) => res.json())
 		.then((data) => {
 			updateOne("tokens", { name: "spotify" }, { access_token: data.access_token, expires: Date.now() + 3600 * 1000 });
-			return data;
+			return data.access_token;
 		});
 }
 
 //get the spotify token from the database or get a new one if it has expired
 async function getSpotifyData() {
 	const token = await findOne("tokens", { name: "spotify" });
+	if (token.error) {
+		throw new Error("Internal server error");
+	}
 	if (!token || token.expires < Date.now()) {
-		getNewToken();
+		const token = await getNewToken();
+		return token;
 	} else {
 		return token.access_token;
 	}
@@ -45,8 +46,7 @@ async function getSpotifyData() {
  * @param {Array} types - Optional (default: ["track"])
  * @param {Number} offset - Optional (default: 0)
  */
-export async function searchSpotify(query, types = ["track"], offset = 0) {
-	const limit = 10;
+export async function searchSpotify(query, types = ["track"], offset = 0, limit = 10) {
 	try {
 		const token = await getSpotifyData();
 		const response = await fetch(`https://api.spotify.com/v1/search?q=${query}&type=${types.join(",")}&limit=${limit}&offset=${offset}`, {
