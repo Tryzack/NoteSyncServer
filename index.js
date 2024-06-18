@@ -46,11 +46,8 @@ app.get("/", (req, res) => {
 	res.status(200).send({ message: "Hello world from BeatSyncBackend" });
 });
 
+dbComponent.connectToDB();
+
 app.listen(port, () => {
 	console.log("Server running on port " + port);
 });
-
-/* testing */
-/* const result = await spotifyComponent.getSpotifyArtist("4Z8W4fKeB5YxbusRsdQVPb");
-console.log(result);
- */

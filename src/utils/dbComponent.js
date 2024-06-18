@@ -175,3 +175,16 @@ export async function getCollection(collectionName) {
 		return { error: "Internal server error" };
 	}
 }
+
+export async function checkUserPermissions(id) {
+	const db = await getDB();
+	const collection = db.collection("users");
+	const user = await collection.findOne({ _id: ObjectId(id) });
+	if (!user) {
+		return { error: "User not found", status: 404 };
+	}
+	if (!user.admin) {
+		return { error: "User not authorized", status: 401 };
+	}
+	return {};
+}

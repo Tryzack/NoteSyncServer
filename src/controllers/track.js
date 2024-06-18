@@ -1,4 +1,4 @@
-import { insertOne, updateOne, deleteOne, findOne } from "../utils/dbComponent.js";
+import { insertOne, updateOne, deleteOne, findOne, checkUserPermissions } from "../utils/dbComponent.js";
 
 export async function getTrack(req, res) {
 	const track = req.query.trackId;
@@ -10,6 +10,10 @@ export async function getTrack(req, res) {
 }
 
 export async function deleteTrack(req, res) {
+	const permission = await checkUserPermissions(req.session.userId);
+	if (permission.error) {
+		return res.status(permission.status).json({ error: permission.error });
+	}
 	const track = req.body.trackId;
 	const result = await deleteOne("track", { _id: track });
 	if (result.error) {
@@ -19,6 +23,10 @@ export async function deleteTrack(req, res) {
 }
 
 export async function insertTrack(req, res) {
+	const permission = await checkUserPermissions(req.session.userId);
+	if (permission.error) {
+		return res.status(permission.status).json({ error: permission.error });
+	}
 	const track = req.body.track;
 	const result = await insertOne("track", track);
 	if (result.error) {
@@ -28,6 +36,10 @@ export async function insertTrack(req, res) {
 }
 
 export async function updateTrack(req, res) {
+	const permission = await checkUserPermissions(req.session.userId);
+	if (permission.error) {
+		return res.status(permission.status).json({ error: permission.error });
+	}
 	const track = req.body.track;
 	const result = await updateOne("track", { _id: track._id }, track);
 	if (result.error) {

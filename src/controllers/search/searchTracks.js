@@ -8,27 +8,21 @@ import { find, insertMany, findOne, connectToDB, closeDB } from "../../utils/dbC
  * @returns {Array} - The tracks found
  */
 export default async function searchTracks(req, res) {
-	const connected = await connectToDB();
-	if (connected.error) {
-		return res.status(500).json(connected);
-	}
 	const reqFilter = req.query.filter;
-	const filter = { name: { $regex: ".*" + reqFilter + ".*", $options: "i" } };
-	const sort = { name: 1 };
+	const filter = {
+		[req.query.searchByArtist ? "artists" : "name"]: req.query.searchByArtist
+			? {
+					$in: [reqFilter],
+			  }
+			: { $regex: ".*" + reqFilter + ".*", $options: "i" },
+	};
+	const sort = { popularity: -1 };
 	const skip = req.query.skip ? parseInt(req.query.skip) : 0;
 	const result = await find("track", filter, sort, 10, skip);
-	const limit = 10 - result.length;
 	if (result.error) {
 		return res.status(500).json(result);
 	}
 	if (result.length < 10) {
-		const spotifyResult = await searchSpotify(reqFilter, ["track"], skip, limit);
-		if (spotifyResult.error) {
-			console.log("Error searching spotify", spotifyResult.error);
-			return res.status(500).json({ error: "Internal server error" });
-		}
-		const items = spotifyResult.tracks.items || [];
-
 		const newTrackIDs = [];
 		const newArtistIDs = [];
 		const newAlbumIDs = [];
@@ -42,42 +36,29 @@ export default async function searchTracks(req, res) {
 		const anotherNewAlbums = [];
 
 		const responseTracks = [];
-		for (const item of items) {
-			const genres = [];
-			await getSpotifyArtists(item.artists.map((artist) => artist.id)).then((artists) => {
-				artists.artists.forEach((artist) => {
-					artist.genres.forEach((genre) => {
-						if (!genres.includes(genre)) {
-							genres.push(genre);
-						}
-					});
-				});
-				item.artists.forEach((artist) => {
-					newArtists.push(artist);
-					newArtistIDs.push(artist.id);
-				});
-
-				newAlbums.push(item.album);
-				newAlbumIDs.push(item.album.id);
-
-				newTracks.push(item);
-				newTrackIDs.push(item.id);
-
-				const track = {
-					name: item.name,
-					url: item.preview_url,
-					cover_img: [...item.album.images],
-					release_date: item.album.release_date,
-					duration_ms: item.duration_ms,
-					disc_number: item.disc_number,
-					track_number: item.track_number,
-					album: item.album.name,
-					artists: item.artists.map((artist) => artist.name),
-					genres: genres,
-				};
-				responseTracks.push(track);
-			});
+		let counter = 0;
+		while (responseTracks.length + result.length < 10) {
+			const resultError = await useSearchSpotify(
+				req.query.searchByArtist,
+				reqFilter,
+				counter * 10,
+				10,
+				newTrackIDs,
+				newArtists,
+				newArtistIDs,
+				newAlbums,
+				newAlbumIDs,
+				newTracks,
+				responseTracks,
+				result
+			);
+			if (resultError) {
+				if (resultError.error) return res.status(500).json(resultError);
+				if (resultError.done) break;
+			}
+			counter++;
 		}
+
 		res.send([...result, ...responseTracks]);
 
 		const artistResult = await find("artist", { refId: { $in: newArtistIDs } });
@@ -128,6 +109,7 @@ export default async function searchTracks(req, res) {
 						name: data.name,
 						genres: data.genres,
 						images: [...data.images],
+						popularity: data.popularity,
 					});
 				});
 			}
@@ -180,6 +162,7 @@ export default async function searchTracks(req, res) {
 						album: track.album.name,
 						artists: track.artists.map((artist) => artist.name),
 						genres: genres,
+						popularity: track.popularity,
 					});
 				});
 			}
@@ -190,5 +173,85 @@ export default async function searchTracks(req, res) {
 		}
 	} else {
 		res.send(result);
+	}
+}
+
+async function useSearchSpotify(
+	searchByArtist,
+	reqFilter,
+	skip,
+	limit,
+	newTrackIDs,
+	newArtists,
+	newArtistIDs,
+	newAlbums,
+	newAlbumIDs,
+	newTracks,
+	responseTracks,
+	result
+) {
+	const spotifyResult = await searchSpotify(searchByArtist ? `artist:${reqFilter}` : `track:${reqFilter}`, ["track"], skip, limit);
+	if (spotifyResult.error) {
+		console.log("Error searching spotify", spotifyResult.error);
+		return res.status(500).json({ error: "Internal server error" });
+	}
+	const items = spotifyResult.tracks.items || [];
+	const toPush = [];
+
+	for (const item of items) {
+		const genres = [];
+		await getSpotifyArtists(item.artists.map((artist) => artist.id)).then((artists) => {
+			artists.artists.forEach((artist) => {
+				artist.genres.forEach((genre) => {
+					if (!genres.includes(genre)) {
+						genres.push(genre);
+					}
+				});
+			});
+			item.artists.forEach((artist) => {
+				newArtists.push(artist);
+				newArtistIDs.push(artist.id);
+			});
+
+			newAlbums.push(item.album);
+			newAlbumIDs.push(item.album.id);
+
+			newTracks.push(item);
+			newTrackIDs.push(item.id);
+
+			const track = {
+				id: item.id,
+				name: item.name,
+				url: item.preview_url,
+				cover_img: [...item.album.images],
+				release_date: item.album.release_date,
+				duration_ms: item.duration_ms,
+				disc_number: item.disc_number,
+				track_number: item.track_number,
+				album: item.album.name,
+				album_id: item.album.id,
+				artists: item.artists.map((artist) => artist.name),
+				genres: genres,
+				popularity: item.popularity,
+			};
+
+			if (!result.find((track) => track.refId === item.id)) toPush.push(track); // Only add if not already in the database
+		});
+	}
+	const alreadyInDatabase = await find("track", { refId: { $in: newTrackIDs } });
+	console.log(alreadyInDatabase);
+	if (alreadyInDatabase.error) {
+		console.log("Error finding tracks", alreadyInDatabase.error);
+		return res.status(500).json({ error: "Internal server error" });
+	}
+
+	for (const element of toPush) {
+		if (!alreadyInDatabase.find((track) => track.refId === element.id)) {
+			responseTracks.push(element);
+		}
+	}
+	console.log("responseArtists", spotifyResult.tracks.items.length);
+	if (spotifyResult.tracks.items.length < limit) {
+		return;
 	}
 }
