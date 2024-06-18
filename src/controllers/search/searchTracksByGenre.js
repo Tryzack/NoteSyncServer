@@ -3,19 +3,13 @@ import { find, insertMany, findOne, connectToDB, closeDB } from "../../utils/dbC
 
 /**
  * Search for tracks
- * @param {String} req.query.filter - Required
+ * @param {String} req.query.filter - Required - The name of the genre to search for
  * @param {Number} req.query.skip - Optional
  * @returns {Array} - The tracks found
  */
-export default async function searchTracks(req, res) {
+export default async function searchTracksByGenre(req, res) {
 	const reqFilter = req.query.filter;
-	const filter = {
-		[req.query.searchByArtist ? "artists" : "name"]: req.query.searchByArtist
-			? {
-					$in: [reqFilter],
-			  }
-			: { $regex: ".*" + reqFilter + ".*", $options: "i" },
-	};
+	const filter = { genres: { $regex: `.*${reqFilter}.*`, $options: "i" } };
 	const sort = { popularity: -1 };
 	const skip = req.query.skip ? parseInt(req.query.skip) : 0;
 	const result = await find("track", filter, sort, 10, skip);
@@ -39,7 +33,6 @@ export default async function searchTracks(req, res) {
 		let counter = 0;
 		while (responseTracks.length + result.length < 10) {
 			const resultError = await useSearchSpotify(
-				req.query.searchByArtist,
 				reqFilter,
 				counter * 10,
 				10,
@@ -160,6 +153,7 @@ export default async function searchTracks(req, res) {
 						disc_number: track.disc_number,
 						track_number: track.track_number,
 						album: track.album.name,
+						album_refId: track.album.id,
 						artists: track.artists.map((artist) => artist.name),
 						genres: genres,
 						popularity: track.popularity,
@@ -177,7 +171,6 @@ export default async function searchTracks(req, res) {
 }
 
 async function useSearchSpotify(
-	searchByArtist,
 	reqFilter,
 	skip,
 	limit,
@@ -190,10 +183,10 @@ async function useSearchSpotify(
 	responseTracks,
 	result
 ) {
-	const spotifyResult = await searchSpotify(searchByArtist ? `artist:${reqFilter}` : `track:${reqFilter}`, ["track"], skip, limit);
+	const spotifyResult = await searchSpotify(`genre:${reqFilter}`, ["track"], skip, limit);
 	if (spotifyResult.error) {
 		console.log("Error searching spotify", spotifyResult.error);
-		return res.status(500).json({ error: "Internal server error" });
+		return { error: "Internal server error" };
 	}
 	const items = spotifyResult.tracks.items || [];
 	const toPush = [];
@@ -229,7 +222,7 @@ async function useSearchSpotify(
 				disc_number: item.disc_number,
 				track_number: item.track_number,
 				album: item.album.name,
-				album_id: item.album.id,
+				album_refId: item.album.id,
 				artists: item.artists.map((artist) => artist.name),
 				genres: genres,
 				popularity: item.popularity,
@@ -239,7 +232,6 @@ async function useSearchSpotify(
 		});
 	}
 	const alreadyInDatabase = await find("track", { refId: { $in: newTrackIDs } });
-	console.log(alreadyInDatabase);
 	if (alreadyInDatabase.error) {
 		console.log("Error finding tracks", alreadyInDatabase.error);
 		return res.status(500).json({ error: "Internal server error" });
@@ -250,7 +242,6 @@ async function useSearchSpotify(
 			responseTracks.push(element);
 		}
 	}
-	console.log("responseArtists", spotifyResult.tracks.items.length);
 	if (spotifyResult.tracks.items.length < limit) {
 		return;
 	}

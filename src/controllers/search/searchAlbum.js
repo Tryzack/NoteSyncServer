@@ -2,26 +2,15 @@ import { searchSpotify, getSpotifyArtists, getSpotifyArtist } from "../../utils/
 import { find, insertMany, findOne, connectToDB, closeDB } from "../../utils/dbComponent.js";
 
 export default async function searchAlbums(req, res) {
-	if (connected.error) {
-		return res.status(500).json(connected);
-	}
 	const reqFilter = req.query.filter;
-	const filter = { name: { $regex: ".*" + reqFilter + ".*", $options: "i" } };
-	const sort = { name: 1 };
+	const filter = { $regex: ".*" + reqFilter + ".*", $options: "i" };
+	const sort = { popularity: -1 };
 	const skip = req.query.skip ? parseInt(req.query.skip) : 0;
 	const result = await find("album", filter, sort, 10, skip);
-	const limit = 10 - result.length;
 	if (result.error) {
 		return res.status(500).json(result);
 	}
 	if (result.length < 10) {
-		const spotifyResult = await searchSpotify(reqFilter, ["album"], skip, limit);
-		if (spotifyResult.error) {
-			console.log("Error searching spotify", spotifyResult.error);
-			return res.status(500).json({ error: "Internal server error" });
-		}
-		const items = spotifyResult.albums.items || [];
-
 		const newAlbumIDs = [];
 		const newArtistIDs = [];
 
@@ -32,24 +21,26 @@ export default async function searchAlbums(req, res) {
 		const anotherNewArtists = [];
 
 		const responseAlbums = [];
-		for (const item of items) {
-			item.artists.forEach((artist) => {
-				newArtists.push(artist);
-				newArtistIDs.push(artist.id);
-			});
-
-			newAlbums.push(item);
-			newAlbumIDs.push(item.id);
-
-			const album = {
-				name: item.name,
-				release_date: item.release_date,
-				images: [...item.images],
-				artists: item.artists.map((artist) => artist.name),
-				total_tracks: item.total_tracks,
-			};
-			responseAlbums.push(album);
+		let counter = 0;
+		while (responseAlbums.length + result.length < 10) {
+			const resultError = await useSearchSpotify(
+				reqFilter,
+				counter * 10,
+				10,
+				newAlbumIDs,
+				newArtists,
+				newArtistIDs,
+				newAlbums,
+				responseAlbums,
+				result
+			);
+			if (resultError) {
+				if (resultError.error) return res.status(500).json(resultError);
+				if (resultError.done) break;
+			}
+			counter++;
 		}
+
 		res.send([...result, ...responseAlbums]);
 
 		const artistResult = await find("artist", { refId: { $in: newArtistIDs } });
@@ -87,6 +78,7 @@ export default async function searchAlbums(req, res) {
 						name: data.name,
 						genres: data.genres,
 						images: [...data.images],
+						popularity: data.popularity,
 					});
 				});
 			}
@@ -107,6 +99,7 @@ export default async function searchAlbums(req, res) {
 					images: [...album.images],
 					artists: album.artists.map((artist) => artist.name),
 					total_tracks: album.total_tracks,
+					popularity: album.popularity,
 				});
 			}
 			const result = await insertMany("album", insertAlbums);
@@ -116,5 +109,63 @@ export default async function searchAlbums(req, res) {
 		}
 	} else {
 		res.send(result);
+	}
+}
+
+async function useSearchSpotify(reqFilter, skip, limit, newAlbumIDs, newArtists, newArtistIDs, newAlbums, responseAlbums, result) {
+	const spotifyResult = await searchSpotify(`album:${reqFilter}`, ["album"], skip, limit);
+	if (spotifyResult.error) {
+		console.log("Error searching spotify", spotifyResult.error);
+		return res.status(500).json({ error: "Internal server error" });
+	}
+	const items = spotifyResult.albums.items || [];
+	const toPush = [];
+
+	for (const item of items) {
+		const genres = [];
+		await getSpotifyArtists(item.artists.map((artist) => artist.id)).then((artists) => {
+			artists.artists.forEach((artist) => {
+				artist.genres.forEach((genre) => {
+					if (!genres.includes(genre)) {
+						genres.push(genre);
+					}
+				});
+				item.artists.forEach((artist) => {
+					newArtists.push(artist);
+					newArtistIDs.push(artist.id);
+				});
+
+				newAlbums.push(item);
+				newAlbumIDs.push(item.id);
+
+				const album = {
+					id: item.id,
+					name: item.name,
+					release_date: item.release_date,
+					images: [...item.images],
+					artists: item.artists.map((artist) => artist.name),
+					total_tracks: item.total_tracks,
+					popularity: item.popularity,
+				};
+
+				if (!result.find((album) => album.refId === item.id)) toPush.push(album); // Only add if not already in the database
+			});
+		});
+		const alreadyInDatabase = await find("album", { refId: { $in: newAlbumIDs } });
+		console.log(alreadyInDatabase);
+		if (alreadyInDatabase.error) {
+			console.log("Error finding albums", alreadyInDatabase.error);
+			return res.status(500).json({ error: "Internal server error" });
+		}
+
+		for (const element of toPush) {
+			if (!alreadyInDatabase.find((album) => album.refId === element.id)) {
+				responseAlbums.push(element);
+			}
+		}
+		console.log("responseArtists", spotifyResult.albums.items.length);
+		if (spotifyResult.albums.items.length < limit) {
+			return;
+		}
 	}
 }
