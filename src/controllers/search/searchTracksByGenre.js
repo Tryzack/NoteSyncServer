@@ -121,7 +121,9 @@ export default async function searchTracksByGenre(req, res) {
 					name: album.name,
 					release_date: album.release_date,
 					images: [...album.images],
-					artists: album.artists.map((artist) => artist.name),
+					artists: album.artists.map((artist) => {
+						return { name: artist.name, id: artist.id };
+					}),
 					total_tracks: album.total_tracks,
 				});
 			}

@@ -13,6 +13,7 @@ export default async function searchTracksByAlbum(req, res) {
 	const sort = { popularity: -1 };
 	const skip = req.query.skip ? parseInt(req.query.skip) : 0;
 	const result = await find("track", filter, sort, 10, skip);
+	console.log("result", result);
 	if (result.error) {
 		return res.status(500).json(result);
 	}
@@ -138,7 +139,9 @@ export default async function searchTracksByAlbum(req, res) {
 					name: album.name,
 					release_date: album.release_date,
 					images: [...album.images],
-					artists: album.artists.map((artist) => artist.name),
+					artists: album.artists.map((artist) => {
+						return { name: artist.name, id: artist.id };
+					}),
 					total_tracks: album.total_tracks,
 				});
 			}

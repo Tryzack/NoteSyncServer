@@ -179,6 +179,25 @@ export async function getSpotifyTrack(id) {
 }
 
 /**
+ * Get multiple albums from spotify
+ * @param {String} id - Required
+ */
+export async function getAlbumsByArtist(id, limit = 10, offset = 0) {
+	try {
+		const token = await getSpotifyData();
+		const respose = await fetch(`https://api.spotify.com/v1/artists/${id}/albums?limit=${limit}&offset=${offset}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return respose.json();
+	} catch (error) {
+		console.error(error);
+		return { error: "Internal server error" };
+	}
+}
+
+/**
  * Get multiple tracks from spotify
  * @param {Array} ids - Required
  */
