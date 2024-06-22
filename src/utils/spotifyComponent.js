@@ -32,8 +32,9 @@ async function getSpotifyData() {
 		throw new Error("Internal server error");
 	}
 	if (!token || token.expires < Date.now()) {
-		const token = await getNewToken();
-		return token;
+		getNewToken().then((newToken) => {
+			return newToken;
+		});
 	} else {
 		return token.access_token;
 	}
@@ -60,6 +61,28 @@ export async function searchSpotify(query, types = ["track"], offset = 0, limit 
 		return { error: "Internal server error" };
 	}
 }
+
+/**
+ * Get tracks by Album from spotify
+ * @param {String} albumId - Required
+ * @param {Number} offset - Optional (default: 0)
+ * @param {Number} limit - Optional (default: 10)
+ */
+export async function getSpotifyTracksByAlbum(albumId, offset = 0, limit = 10) {
+	try {
+		const token = await getSpotifyData();
+		const response = await fetch(`https://api.spotify.com/v1/albums/${albumId}/tracks?limit=${limit}&offset=${offset}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return response.json();
+	} catch (error) {
+		console.error(error);
+		return { error: "Internal server error" };
+	}
+}
+
 /**
  * Get an artist from spotify
  * @param {String} id - Required
@@ -144,6 +167,25 @@ export async function getSpotifyTrack(id) {
 	try {
 		const token = await getSpotifyData();
 		const respose = await fetch(`https://api.spotify.com/v1/tracks/${id}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return respose.json();
+	} catch (error) {
+		console.error(error);
+		return { error: "Internal server error" };
+	}
+}
+
+/**
+ * Get multiple albums from spotify
+ * @param {String} id - Required
+ */
+export async function getAlbumsByArtist(id, limit = 10, offset = 0) {
+	try {
+		const token = await getSpotifyData();
+		const respose = await fetch(`https://api.spotify.com/v1/artists/${id}/albums?limit=${limit}&offset=${offset}`, {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},

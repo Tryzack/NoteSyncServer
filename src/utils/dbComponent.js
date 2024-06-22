@@ -183,7 +183,7 @@ export async function checkUserPermissions(id) {
 	if (!user) {
 		return { error: "User not found", status: 404 };
 	}
-	if (!user.admin) {
+	if (!user.isArtist) {
 		return { error: "User not authorized", status: 401 };
 	}
 	return {};
