@@ -1,4 +1,4 @@
-import { searchSpotify, getSpotifyArtists } from "../../utils/spotifyComponent.js";
+import { searchSpotify } from "../../utils/spotifyComponent.js";
 import { find, insertMany, findOne } from "../../utils/dbComponent.js";
 
 export default async function searchArtist(req, res) {
