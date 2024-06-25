@@ -21,7 +21,7 @@ async function getNewToken() {
 		.then((res) => res.json())
 		.then((data) => {
 			updateOne("tokens", { name: "spotify" }, { access_token: data.access_token, expires: Date.now() + 3600 * 1000 });
-			return data.access_token;
+			return data;
 		});
 }
 
@@ -32,9 +32,8 @@ async function getSpotifyData() {
 		throw new Error("Internal server error");
 	}
 	if (!token || token.expires < Date.now()) {
-		getNewToken().then((newToken) => {
-			return newToken;
-		});
+		const newToken = await getNewToken();
+		return newToken?.access_token;
 	} else {
 		return token.access_token;
 	}

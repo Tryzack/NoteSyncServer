@@ -176,15 +176,25 @@ export async function getCollection(collectionName) {
 	}
 }
 
+/**
+ * Check user permissions
+ * @param {string} id - User ID
+ * @returns {Promise<Object>} - The result of the operation
+ */
 export async function checkUserPermissions(id) {
-	const db = await getDB();
-	const collection = db.collection("users");
-	const user = await collection.findOne({ _id: ObjectId(id) });
-	if (!user) {
-		return { error: "User not found", status: 404 };
+	try {
+		const db = await getDB();
+		const collection = db.collection("users");
+		const user = await collection.findOne({ _id: ObjectId.createFromHexString(id) });
+		if (!user) {
+			return { error: "User not found", status: 404 };
+		}
+		if (!user.artist) {
+			return { error: "User not authorized", status: 401 };
+		}
+		return { status: 200 };
+	} catch (error) {
+		console.error("Error checking user permissions", error);
+		return { error: "Database error" + error, status: 500 };
 	}
-	if (!user.isArtist) {
-		return { error: "User not authorized", status: 401 };
-	}
-	return {};
 }
