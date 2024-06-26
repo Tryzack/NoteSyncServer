@@ -1,11 +1,11 @@
 import { searchSpotify, getSpotifyArtists, getSpotifyArtist } from "../../utils/spotifyComponent.js";
-import { find, insertMany, findOne, connectToDB, closeDB } from "../../utils/dbComponent.js";
+import { find, insertMany } from "../../utils/dbComponent.js";
 
 export default async function searchAlbums(req, res) {
 	try {
 		const reqFilter = req.query.filter;
-		const filter = { $regex: ".*" + reqFilter + ".*", $options: "i" };
-		const sort = { popularity: -1 };
+		const filter = { name: { $regex: ".*" + reqFilter + ".*", $options: "i" } };
+		const sort = {};
 		const skip = req.query.skip ? parseInt(req.query.skip) : 0;
 		const result = await find("album", filter, sort, 10, skip);
 		if (result.error) {

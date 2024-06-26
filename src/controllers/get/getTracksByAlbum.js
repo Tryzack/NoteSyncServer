@@ -1,13 +1,13 @@
 import { getSpotifyTracksByAlbum, getSpotifyArtists, getSpotifyArtist, getSpotifyAlbum } from "../../utils/spotifyComponent.js";
-import { find, insertMany, findOne, connectToDB, closeDB } from "../../utils/dbComponent.js";
+import { find, insertMany } from "../../utils/dbComponent.js";
 
 /**
- * Search for tracks
- * @param {String} req.query.filter - Required - The ID of the album to search for
+ * get for tracks
+ * @param {String} req.query.filter - Required - The ID of the album to get for
  * @param {Number} req.query.skip - Optional
  * @returns {Array} - The tracks found
  */
-export default async function searchTracksByAlbum(req, res) {
+export default async function getTracksByAlbum(req, res) {
 	const reqFilter = req.query.filter;
 	const filter = { album_refId: reqFilter };
 	const sort = { popularity: -1 };
@@ -51,7 +51,7 @@ export default async function searchTracksByAlbum(req, res) {
 		const responseTracks = [];
 		let counter = 0;
 		while (responseTracks.length + result.length < 10) {
-			const resultError = await useSearchSpotify(
+			const resultError = await usegetSpotify(
 				reqFilter,
 				counter * 10,
 				10,
@@ -190,10 +190,10 @@ export default async function searchTracksByAlbum(req, res) {
 	}
 }
 
-async function useSearchSpotify(reqFilter, skip, limit, newTrackIDs, newArtists, newArtistIDs, newAlbums, newTracks, responseTracks, result) {
+async function usegetSpotify(reqFilter, skip, limit, newTrackIDs, newArtists, newArtistIDs, newAlbums, newTracks, responseTracks, result) {
 	const spotifyResult = await getSpotifyTracksByAlbum(reqFilter, skip, limit);
 	if (spotifyResult.error) {
-		console.log("Error searching spotify", spotifyResult.error);
+		console.log("Error geting spotify", spotifyResult.error);
 		return res.status(500).json({ error: "Internal server error" });
 	}
 	const items = spotifyResult.items || [];

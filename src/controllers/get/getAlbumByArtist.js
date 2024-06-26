@@ -2,12 +2,12 @@ import { getAlbumsByArtist } from "../../utils/spotifyComponent.js";
 import { find, insertMany } from "../../utils/dbComponent.js";
 
 /**
- * Search for albums by artist
- * @param {String} req.query.reqFilter - Required - The name of the artist to search for
+ * get for albums by artist
+ * @param {String} req.query.reqFilter - Required - The name of the artist to get for
  * @param {Number} req.query.skip - Optional (default: 0)
  * @returns {Array} - The albums found
  */
-export default async function searchAlbumByArtist(req, res) {
+export default async function getAlbumByArtist(req, res) {
 	const reqFilter = req.query.filter;
 	if (!reqFilter) {
 		return res.status(400).json({ error: "Missing required parameter artistId" });
@@ -31,7 +31,7 @@ export default async function searchAlbumByArtist(req, res) {
 
 			let counter = 0;
 			while (responseAlbums.length + response.length < 10) {
-				const resultError = await useSearchSpotify(reqFilter, counter * 10, 10, newAlbumIDs, newAlbums, responseAlbums, response);
+				const resultError = await usegetSpotify(reqFilter, counter * 10, 10, newAlbumIDs, newAlbums, responseAlbums, response);
 				if (resultError) {
 					if (resultError.error) return res.status(500).json(resultError);
 					if (resultError.done) break;
@@ -81,7 +81,7 @@ export default async function searchAlbumByArtist(req, res) {
 	}
 }
 
-async function useSearchSpotify(reqFilter, skip, limit, newAlbumIDs, newAlbums, responseAlbums, result) {
+async function usegetSpotify(reqFilter, skip, limit, newAlbumIDs, newAlbums, responseAlbums, result) {
 	const spotifyResult = await getAlbumsByArtist(reqFilter, limit, skip);
 	if (spotifyResult.error) {
 		return { error: spotifyResult.error };

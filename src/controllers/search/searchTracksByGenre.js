@@ -1,5 +1,5 @@
 import { searchSpotify, getSpotifyArtists, getSpotifyArtist } from "../../utils/spotifyComponent.js";
-import { find, insertMany, findOne, connectToDB, closeDB } from "../../utils/dbComponent.js";
+import { find, insertMany } from "../../utils/dbComponent.js";
 
 /**
  * Search for tracks

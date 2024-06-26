@@ -177,7 +177,7 @@ export async function getCollection(collectionName) {
 }
 
 /**
- * Check user permissions
+ * Check user artists permissions
  * @param {string} id - User ID
  * @returns {Promise<Object>} - The result of the operation
  */

@@ -1,11 +1,11 @@
-import { parse } from "dotenv";
-import { insertOne, updateOne, deleteOne, findOne, checkUserPermissions } from "../utils/dbComponent.js";
+import { ObjectId } from "mongodb";
+import { insertOne, updateOne, deleteOne, findOne, checkUserPermissions, find } from "../utils/dbComponent.js";
 import { uploadSong } from "../utils/firebaseComponent.js";
 import formidable from "formidable";
 
-export async function getTrack(req, res) {
-	const track = req.query.trackId;
-	const result = await findOne("track", { _id: track });
+export async function getUploadedTracks(req, res) {
+	if (!req.session.userId) return res.status(401).json({ error: "Unauthorized" });
+	const result = await find("track", { userId: req.session.userId });
 	if (result.error) {
 		return res.status(500).json(result);
 	}
@@ -20,19 +20,15 @@ export async function deleteTrack(req, res) {
 			return res.status(permission.status).json({ error: permission.error });
 		}
 		const trackId = req.body.trackId;
-		const fireBaseId = req.body.fireBaseId;
-		const result = await findOne("track", { [fireBaseId ? "fireBaseId" : "_id"]: fireBaseId ?? trackId }, { projection: ["userId"] });
-		if (result.error) {
-			return res.status(500).json(result);
-		}
-		if (result.userId !== req.session.userId) {
-			return res.status(403).json({ error: "You are not allowed to delete this track" });
-		}
-		const deleteResult = await deleteOne("track", { _id: trackId });
-		if (deleteResult.error) {
-			return res.status(500).json(result);
-		}
-		return res.status(200).json(result);
+		const result = await findOne("track", { _id: ObjectId.createFromHexString(trackId), userId: req.session.userId });
+		if (result.error) return res.status(500).json(result);
+		if (Object.keys(result).length === 0) return res.status(404).json({ error: "Track not found" });
+		if (result.userId !== req.session.userId) return res.status(403).json({ error: "You are not allowed to delete this track" });
+
+		const deleteResult = await deleteOne("track", { _id: ObjectId.createFromHexString(trackId) });
+		if (deleteResult.error) return res.status(500).json(result);
+
+		return res.status(200).json({ message: "Track deleted" });
 	} catch (error) {
 		return res.status(500).json({ error: error });
 	}
@@ -78,6 +74,7 @@ export async function insertTrack(req, res) {
 				uploadSong(filePath).then((result) => {
 					if (result.error) return res.status(500).json(result);
 					track.songUrl = result.url;
+					track.refId = result.refId;
 
 					insertOne("track", { ...track, userId: req.session.userId }).then((result) => {
 						if (result.error) return res.status(500).json(result);
@@ -102,14 +99,26 @@ export async function updateTrack(req, res) {
 		}
 		const track = req.body.track;
 		const trackId = req.body.trackId;
-		const result = await findOne("track", { _id: trackId });
+		const result = await findOne("track", { _id: ObjectId.createFromHexString(trackId) });
 		if (result.error) {
 			return res.status(500).json(result);
 		}
-		if (result.userId !== req.session.userId) {
-			return res.status(403).json({ error: "You are not allowed to update this track" });
-		}
-		const updateResult = await updateOne("track", { _id: trackId }, track);
+		if (Object.keys(result).length === 0) return res.status(404).json({ error: "Track not found" });
+
+		if (result.userId !== req.session.userId) return res.status(403).json({ error: "You are not allowed to update this track" });
+
+		const updateResult = await updateOne(
+			"track",
+			{ _id: ObjectId.createFromHexString(trackId) },
+			{
+				name: track.name,
+				artists: track.artists,
+				release_date: track.release_date,
+				disc_number: track.disc_number,
+				track_number: track.track_number,
+				genres: track.genres,
+			}
+		);
 		if (updateResult.error) {
 			return res.status(500).json(updateResult);
 		}

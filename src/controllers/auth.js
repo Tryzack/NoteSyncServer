@@ -76,3 +76,18 @@ export function checkSession(req, res) {
 		res.status(401).send({ message: "Not logged in" });
 	}
 }
+
+/**
+ * Log out
+ */
+export function logout(req, res) {
+	if (!req.session.userId) return res.status(401).send({ message: "Not logged in" });
+	req.session.destroy((err) => {
+		if (err) {
+			console.error(err);
+			res.status(500).send({ message: "Internal server error" });
+		} else {
+			res.send({ message: "Logged out" });
+		}
+	});
+}

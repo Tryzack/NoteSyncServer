@@ -18,7 +18,7 @@ export async function uploadSong(file) {
             expires: Date.now() + 1000 * 60 * 60 * 24 * 30 // a month Date.now() + 1000 * 60 * 60 * 24 * 30
         }
         const signedUrl = await bucket.file(`images/${uuid}.mp3`).getSignedUrl(options);
-        return { success: true, url: signedUrl[0]};
+        return { success: true, url: signedUrl[0], refId: uuid};
 
     } catch (error) {
         return { error: error };

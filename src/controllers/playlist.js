@@ -1,4 +1,4 @@
-import { insertOne, updateOne, deleteOne, findOne, checkUserPermissions } from "../utils/dbComponent.js";
+import { insertOne, updateOne, deleteOne, find } from "../utils/dbComponent.js";
 import { ObjectId } from "mongodb";
 
 /**
@@ -10,27 +10,14 @@ export async function getPlaylists(req, res) {
 	if (!req.session.userId) {
 		return res.status(401).json({ error: "Unauthorized" });
 	}
-	const result = await findOne("playlist", { userId: ObjectId(req.session.userId) });
+	const result = await find("playlist", { userId: req.session.userId });
 	if (result.error) {
 		return res.status(500).json(result);
 	}
-	return res.status(200).json(result);
-}
-
-/**
- * Get a specific playlist for the current user
- * @param {Request} req.session.userId - The user's session
- * @param {Request} req.query.playlistId - The playlist to get
- * @returns {Response} res - The response
- */
-export async function getPlaylist(req, res) {
-	if (!req.session.userId) {
-		return res.status(401).json({ error: "Unauthorized" });
-	}
-	const playlist = req.query.playlistId;
-	const result = await findOne("playlist", { _id: playlist, userId: ObjectId(req.session.userId) });
-	if (result.error) {
-		return res.status(500).json(result);
+	for (const playlist of result) {
+		const songIds = playlist.songIds;
+		const songs = await find("track", { refId: { $in: songIds } });
+		playlist.songs = songs;
 	}
 	return res.status(200).json(result);
 }
@@ -45,12 +32,12 @@ export async function deletePlaylist(req, res) {
 	if (!req.session.userId) {
 		return res.status(401).json({ error: "Unauthorized" });
 	}
-	const playlist = req.body.playlistId;
-	const result = await deleteOne("playlist", { _id: playlist, userId: ObjectId(req.session.userId) });
+	const playlist = req.body.id;
+	const result = await deleteOne("playlist", { _id: ObjectId.createFromHexString(playlist), userId: req.session.userId });
 	if (result.error) {
 		return res.status(500).json(result);
 	}
-	return res.status(200).json(result);
+	return res.status(200).json({ message: "Playlist deleted" });
 }
 
 /**
@@ -63,9 +50,15 @@ export async function insertPlaylist(req, res) {
 	if (!req.session.userId) {
 		return res.status(401).json({ error: "Unauthorized" });
 	}
-	const playlist = req.body.playlist;
-	playlist.userId = ObjectId(req.session.userId);
-	const result = await insertOne("playlist", playlist);
+	if (!req.body.name) {
+		return res.status(400).json({ error: "Bad request" });
+	}
+	const result = await insertOne("playlist", {
+		name: req.body.name,
+		userId: req.session.userId,
+		description: req.body.description || "",
+		songIds: [],
+	});
 	if (result.error) {
 		return res.status(500).json(result);
 	}
@@ -75,17 +68,30 @@ export async function insertPlaylist(req, res) {
 /**
  * Update a specific playlist for the current user
  * @param {Request} req.session.userId - The user's session
- * @param {Request} req.body.playlist - The playlist to update
+ * @param {Request} req.body.id - The playlist to update
+ * @param {Request} req.body.playlist.name - The new name of the playlist
+ * @param {Request} req.body.playlist.description - The new description of the playlist
+ * @param {Request} req.body.playlist.songIds - The new songIds of the playlist
  * @returns {Response} res - The response
  */
 export async function updatePlaylist(req, res) {
-	if (!req.session.userId) {
-		return res.status(401).json({ error: "Unauthorized" });
+	try {
+		if (!req.session.userId) {
+			return res.status(401).json({ error: "Unauthorized" });
+		}
+		if (!req.body.name) {
+			return res.status(400).json({ error: "Bad request" });
+		}
+		const result = await updateOne(
+			"playlist",
+			{ _id: ObjectId.createFromHexString(req.body.id), userId: req.session.userId },
+			{ name: req.body.name, description: req.body.description || "", songIds: req.body.songIds ?? [] }
+		);
+		if (result.error) {
+			return res.status(500).json(result);
+		}
+		return res.status(200).json(result);
+	} catch (error) {
+		return res.status(500).json({ error: "Internal Server Error" + error });
 	}
-	const playlist = req.body.playlist;
-	const result = await updateOne("playlist", { _id: playlist._id, userId: ObjectId(req.session.userId) }, playlist);
-	if (result.error) {
-		return res.status(500).json(result);
-	}
-	return res.status(200).json(result);
 }
