@@ -34,7 +34,12 @@ app.use(session(sessionOptions))
 	.use(express.json())
 	.use(express.urlencoded({ extended: true }))
 	.use(routes)
-	.use(cors());
+	.use((req, res, next) => {
+		res.setHeader("Access-Control-Allow-Origin", "*");
+		res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+		res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+		next();
+	});
 
 if (sessionOptions.cookie.secure) {
 	app.set("trust proxy", 1);
