@@ -30,17 +30,18 @@ const sessionOptions = {
 	},
 };
 
+app.use(
+	cors({
+		origin: "*", // all origins
+		methods: ["GET", "POST", "PUT", "DELETE"],
+		allowedHeaders: ["Content-Type", "Authorization"],
+	})
+);
+
 app.use(session(sessionOptions))
 	.use(express.json())
 	.use(express.urlencoded({ extended: true }))
-	.use(routes)
-	.use(
-		cors({
-			origin: "*", // all origins
-			methods: ["GET", "POST", "PUT", "DELETE"],
-			allowedHeaders: ["Content-Type", "Authorization"],
-		})
-	);
+	.use(routes);
 
 if (sessionOptions.cookie.secure) {
 	app.set("trust proxy", 1);
