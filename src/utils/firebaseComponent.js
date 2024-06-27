@@ -1,5 +1,5 @@
 import admin from "firebase-admin";
-import serviceAccount from "./serviceAccountKey.json" with {type: "json"};
+import serviceAccount from "../../serviceAccountKey.json" with {type: "json"};
 import { v4 as uuidv4 } from "uuid";
 
 admin.initializeApp({

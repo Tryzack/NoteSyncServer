@@ -82,6 +82,7 @@ export async function insertTrack(req, res) {
 					});
 				});
 			} catch (error) {
+				console.log(error);
 				return res.status(500).json({ error: "Error parsing form data" });
 			}
 		});
