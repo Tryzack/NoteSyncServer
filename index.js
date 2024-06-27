@@ -33,8 +33,7 @@ const sessionOptions = {
 app.use(session(sessionOptions))
 	.use(express.json())
 	.use(express.urlencoded({ extended: true }))
-	.use(routes)
-	.use(cors({ origin: "http://localhost:4200", allowedHeaders: ["Content-Type", "Authorization"] }));
+	.use(routes);
 
 if (sessionOptions.cookie.secure) {
 	app.set("trust proxy", 1);
