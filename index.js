@@ -34,13 +34,7 @@ app.use(session(sessionOptions))
 	.use(express.json())
 	.use(express.urlencoded({ extended: true }))
 	.use(routes)
-	.use((req, res, next) => {
-		res.setHeader("Access-Control-Allow-Origin", "*");
-		res.setHeader("Access-Control-Allow-Origin", "localhost:4200");
-		res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-		res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-		next();
-	});
+	.use(cors({ origin: "http://localhost:4200" }));
 
 if (sessionOptions.cookie.secure) {
 	app.set("trust proxy", 1);
