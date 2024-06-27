@@ -3,6 +3,7 @@ import session from "express-session";
 import routes from "./src/routes.js";
 import dotenv from "dotenv";
 import cors from "cors";
+import * as dbComponent from "./src/utils/dbComponent.js";
 dotenv.config();
 
 const app = express();
