@@ -2,10 +2,7 @@ import express from "express";
 import session from "express-session";
 import routes from "./src/routes.js";
 import dotenv from "dotenv";
-/* testing */
-import * as dbComponent from "./src/utils/dbComponent.js";
-import * as spotifyComponent from "./src/utils/spotifyComponent.js";
-
+import cors from "cors";
 dotenv.config();
 
 const app = express();
@@ -35,7 +32,8 @@ const sessionOptions = {
 app.use(session(sessionOptions))
 	.use(express.json())
 	.use(express.urlencoded({ extended: true }))
-	.use(routes);
+	.use(routes)
+	.use(cors());
 
 if (sessionOptions.cookie.secure) {
 	app.set("trust proxy", 1);
