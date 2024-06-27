@@ -36,7 +36,7 @@ app.use(session(sessionOptions))
 	.use(routes)
 	.use(
 		cors({
-			origin: "http://localhost:8100",
+			origin: "*", // all origins
 			methods: ["GET", "POST", "PUT", "DELETE"],
 			allowedHeaders: ["Content-Type", "Authorization"],
 		})
