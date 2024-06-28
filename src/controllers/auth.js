@@ -17,7 +17,7 @@ export async function register(req, res) {
 	}
 	try {
 		let user = await findOne("users", { user_email: req.body.email });
-		if (user) {
+		if (Object.keys(user).length !== 0) {
 			res.status(409).send({ message: "User already exists" });
 			return;
 		}

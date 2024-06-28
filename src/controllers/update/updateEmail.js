@@ -22,7 +22,7 @@ export async function updateUserEmail(req, res) {
 	}
 	try {
 		const user = await findOne("users", { _id: ObjectId.createFromHexString(req.session.userId) });
-		if (!user) {
+		if (Object.keys(user).length === 0) {
 			res.status(401).send({ message: "User does not exist" });
 			return;
 		}

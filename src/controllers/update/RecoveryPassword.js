@@ -17,7 +17,7 @@ export async function recoveryCode(req, res) {
 	}
 	try {
 		const user = await findOne("users", { user_email: req.body.email });
-		if (!user) {
+		if (Object.keys(user).length === 0) {
 			res.status(400).send({ message: "User does not exist" });
 			return;
 		}
@@ -52,7 +52,7 @@ export async function forgotPassword(req, res) {
 	let user;
 	try {
 		user = await findOne("users", { user_email: req.body.email });
-		if (!user) {
+		if (Object.keys(user).length === 0) {
 			res.status(400).send({ message: "User does not exist" });
 			return;
 		}
@@ -137,7 +137,7 @@ export async function recoveryPassword(req, res) {
 	}
 	try {
 		const user = await findOne("users", { user_email: req.body.email });
-		if (!user) {
+		if (Object.keys(user).length === 0) {
 			res.status(400).send({ message: "User does not exist" });
 			return;
 		}

@@ -31,7 +31,7 @@ async function getSpotifyData() {
 	if (token.error) {
 		throw new Error("Internal server error");
 	}
-	if (!token || token.expires < Date.now()) {
+	if (Object.keys(token).length === 0 || token.expires < Date.now()) {
 		const newToken = await getNewToken();
 		return newToken?.access_token;
 	} else {
