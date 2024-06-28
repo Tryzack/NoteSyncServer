@@ -158,7 +158,9 @@ export default async function searchTracksByName(req, res) {
 						album_refId: track.album.id,
 						artists: track.artists.map((artist) => artist.name),
 						genres: genres,
+						explicit: track.explicit,
 						popularity: track.popularity,
+						type: "Song",
 					});
 				});
 			}
@@ -227,7 +229,9 @@ async function useSearchSpotify(
 				album_refId: item.album.id,
 				artists: item.artists.map((artist) => artist.name),
 				genres: genres,
+				explicit: item.explicit,
 				popularity: item.popularity,
+				type: "Song",
 			};
 
 			if (!result.find((track) => track.refId === item.id)) toPush.push(track); // Only add if not already in the database

@@ -97,12 +97,13 @@ export default async function searchAlbums(req, res) {
 						refId: album.refId,
 						name: album.name,
 						release_date: album.release_date,
-						images: [...album.images],
+						cover_img: [...album.images],
 						artists: album.artists.map((artist) => {
 							return { name: artist.name, id: artist.id };
 						}),
 						total_tracks: album.total_tracks,
 						popularity: album.popularity,
+						type: "Album",
 					});
 				}
 				const result = await insertMany("album", insertAlbums);
@@ -149,12 +150,14 @@ async function useSearchSpotify(reqFilter, skip, limit, newAlbumIDs, newArtists,
 					refId: item.id,
 					name: item.name,
 					release_date: item.release_date,
-					images: [...item.images],
+					cover_img: [...item.images],
 					artists: item.artists.map((artist) => {
 						return { name: artist.name, id: artist.id };
 					}),
 					total_tracks: item.total_tracks,
+					type: "Album",
 				};
+				console.log(item);
 
 				if (!result.find((album) => album.refId === item.id)) toPush.push(album); // Only add if not already in the database
 			});
