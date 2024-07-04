@@ -10,7 +10,7 @@ export async function getAlbum(req, res) {
 }
 
 export async function deleteAlbum(req, res) {
-	const permission = await checkUserPermissions(req.session.userId);
+	const permission = await checkUserPermissions(req.body.userId);
 	if (permission.error) {
 		return res.status(permission.status).json({ error: permission.error });
 	}
@@ -23,7 +23,7 @@ export async function deleteAlbum(req, res) {
 }
 
 export async function insertAlbum(req, res) {
-	const permission = await checkUserPermissions(req.session.userId);
+	const permission = await checkUserPermissions(req.body.userId);
 	if (permission.error) {
 		return res.status(permission.status).json({ error: permission.error });
 	}
@@ -36,7 +36,7 @@ export async function insertAlbum(req, res) {
 }
 
 export async function updateAlbum(req, res) {
-	const permission = await checkUserPermissions(req.session.userId);
+	const permission = await checkUserPermissions(req.body.userId);
 	if (permission.error) {
 		return res.status(permission.status).json({ error: permission.error });
 	}

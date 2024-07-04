@@ -7,10 +7,10 @@ import { ObjectId } from "mongodb";
  * @returns {Response} res - The response
  */
 export async function getPlaylists(req, res) {
-	if (!req.session.userId) {
+	if (!req.body.userId) {
 		return res.status(401).json({ error: "Unauthorized" });
 	}
-	const result = await find("playlist", { userId: req.session.userId });
+	const result = await find("playlist", { userId: req.body.userId });
 	if (result.error) {
 		return res.status(500).json(result);
 	}
@@ -29,11 +29,11 @@ export async function getPlaylists(req, res) {
  * @returns {Response} res - The response
  */
 export async function deletePlaylist(req, res) {
-	if (!req.session.userId) {
+	if (!req.body.userId) {
 		return res.status(401).json({ error: "Unauthorized" });
 	}
 	const playlist = req.body.id;
-	const result = await deleteOne("playlist", { _id: ObjectId.createFromHexString(playlist), userId: req.session.userId });
+	const result = await deleteOne("playlist", { _id: ObjectId.createFromHexString(playlist), userId: req.body.userId });
 	if (result.error) {
 		return res.status(500).json(result);
 	}
@@ -47,7 +47,7 @@ export async function deletePlaylist(req, res) {
  * @returns {Response} res - The response
  */
 export async function insertPlaylist(req, res) {
-	if (!req.session.userId) {
+	if (!req.body.userId) {
 		return res.status(401).json({ error: "Unauthorized" });
 	}
 	if (!req.body.name) {
@@ -55,7 +55,7 @@ export async function insertPlaylist(req, res) {
 	}
 	const result = await insertOne("playlist", {
 		name: req.body.name,
-		userId: req.session.userId,
+		userId: req.body.userId,
 		description: req.body.description || "",
 		songIds: [],
 	});
@@ -76,7 +76,7 @@ export async function insertPlaylist(req, res) {
  */
 export async function updatePlaylist(req, res) {
 	try {
-		if (!req.session.userId) {
+		if (!req.body.userId) {
 			return res.status(401).json({ error: "Unauthorized" });
 		}
 		if (!req.body.name) {
@@ -84,7 +84,7 @@ export async function updatePlaylist(req, res) {
 		}
 		const result = await updateOne(
 			"playlist",
-			{ _id: ObjectId.createFromHexString(req.body.id), userId: req.session.userId },
+			{ _id: ObjectId.createFromHexString(req.body.id), userId: req.body.userId },
 			{ name: req.body.name, description: req.body.description || "", songIds: req.body.songIds ?? [] }
 		);
 		if (result.error) {

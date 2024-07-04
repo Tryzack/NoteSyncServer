@@ -7,7 +7,7 @@ import { findOne, insertOne } from "../utils/dbComponent.js";
  * @param {String} req.body.password - Required
  */
 export async function register(req, res) {
-	if (req.session.userId) {
+	if (req.body.userId) {
 		res.status(200).send({ message: "Already logged in" });
 		return;
 	}
@@ -40,7 +40,7 @@ export async function register(req, res) {
  * @param {String} req.body.password - Required
  */
 export async function login(req, res) {
-	if (req.session.userId) {
+	if (req.query.userId) {
 		res.status(200).send({ message: "Already logged in" });
 		return;
 	}
@@ -56,7 +56,7 @@ export async function login(req, res) {
 		}
 		if (await bcrypt.compare(req.body.password, user.user_password)) {
 			req.session.userId = user._id;
-			res.send({ message: "Logged in" });
+			res.send({ message: "Logged in", sessionId: user._id });
 		} else {
 			res.status(401).send({ message: "Incorrect Password" });
 		}
@@ -70,7 +70,7 @@ export async function login(req, res) {
  * Check if user is logged in
  */
 export function checkSession(req, res) {
-	if (req.session.userId) {
+	if (req.query.userId) {
 		res.send({ message: "Logged in" });
 	} else {
 		res.status(401).send({ message: "Not logged in" });
@@ -81,13 +81,5 @@ export function checkSession(req, res) {
  * Log out
  */
 export function logout(req, res) {
-	if (!req.session.userId) return res.status(401).send({ message: "Not logged in" });
-	req.session.destroy((err) => {
-		if (err) {
-			console.error(err);
-			res.status(500).send({ message: "Internal server error" });
-		} else {
-			res.send({ message: "Logged out" });
-		}
-	});
+	res.send({ message: "Logged out" });
 }

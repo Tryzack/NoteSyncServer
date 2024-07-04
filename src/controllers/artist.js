@@ -11,7 +11,7 @@ export async function getArtist(req, res) {
 }
 
 export async function deleteArtist(req, res) {
-	const permission = await checkUserPermissions(req.session.userId);
+	const permission = await checkUserPermissions(req.body.userId);
 	if (permission.error) {
 		return res.status(permission.status).json({ error: permission.error });
 	}
@@ -24,7 +24,7 @@ export async function deleteArtist(req, res) {
 }
 
 export async function insertArtist(req, res) {
-	const permission = await checkUserPermissions(req.session.userId);
+	const permission = await checkUserPermissions(req.body.userId);
 	if (permission.error) {
 		return res.status(permission.status).json({ error: permission.error });
 	}
@@ -37,7 +37,7 @@ export async function insertArtist(req, res) {
 }
 
 export async function updateArtist(req, res) {
-	const permission = await checkUserPermissions(req.session.userId);
+	const permission = await checkUserPermissions(req.body.userId);
 	if (permission.error) {
 		return res.status(permission.status).json({ error: permission.error });
 	}

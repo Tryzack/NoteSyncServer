@@ -6,7 +6,7 @@ import { findOne, updateOne } from "../../utils/dbComponent.js";
  * @param {String} req.body.newEmail - Required
  */
 export async function updateUserEmail(req, res) {
-	if (!req.session.userId) {
+	if (!req.body.userId) {
 		res.status(401).send({ message: "Unauthorized" });
 		return;
 	}
@@ -21,7 +21,7 @@ export async function updateUserEmail(req, res) {
 		return;
 	}
 	try {
-		const user = await findOne("users", { _id: ObjectId.createFromHexString(req.session.userId) });
+		const user = await findOne("users", { _id: ObjectId.createFromHexString(req.body.userId) });
 		if (Object.keys(user).length === 0) {
 			res.status(401).send({ message: "User does not exist" });
 			return;
@@ -33,7 +33,7 @@ export async function updateUserEmail(req, res) {
 			return;
 		}
 
-		const result = await updateOne("users", { _id: ObjectId.createFromHexString(req.session.userId) }, { user_email: req.body.newEmail });
+		const result = await updateOne("users", { _id: ObjectId.createFromHexString(req.body.userId) }, { user_email: req.body.newEmail });
 		if (result.error) return res.status(500).send({ message: "Error updating user" });
 		res.status(200).send({ message: "User updated" });
 	} catch (error) {

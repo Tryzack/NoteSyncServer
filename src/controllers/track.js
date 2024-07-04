@@ -4,8 +4,8 @@ import { uploadSong } from "../utils/firebaseComponent.js";
 import formidable from "formidable";
 
 export async function getUploadedTracks(req, res) {
-	if (!req.session.userId) return res.status(401).json({ error: "Unauthorized" });
-	const result = await find("track", { userId: req.session.userId });
+	if (!req.query.userId) return res.status(401).json({ error: "Unauthorized" });
+	const result = await find("track", { userId: req.query.userId });
 	if (result.error) {
 		return res.status(500).json(result);
 	}
@@ -13,17 +13,17 @@ export async function getUploadedTracks(req, res) {
 }
 
 export async function deleteTrack(req, res) {
-	if (!req.session.userId) return res.status(401).json({ error: "Unauthorized" });
+	if (req.body.userId) return res.status(401).json({ error: "Unauthorized" });
 	try {
-		const permission = await checkUserPermissions(req.session.userId);
+		const permission = await checkUserPermissions(req.body.userId);
 		if (permission.error) {
 			return res.status(permission.status).json({ error: permission.error });
 		}
 		const trackId = req.body.trackId;
-		const result = await findOne("track", { _id: ObjectId.createFromHexString(trackId), userId: req.session.userId });
+		const result = await findOne("track", { _id: ObjectId.createFromHexString(trackId), userId: req.body.userId });
 		if (result.error) return res.status(500).json(result);
 		if (Object.keys(result).length === 0) return res.status(404).json({ error: "Track not found" });
-		if (result.userId !== req.session.userId) return res.status(403).json({ error: "You are not allowed to delete this track" });
+		if (result.userId !== req.body.userId) return res.status(403).json({ error: "You are not allowed to delete this track" });
 
 		const deleteResult = await deleteOne("track", { _id: ObjectId.createFromHexString(trackId) });
 		if (deleteResult.error) return res.status(500).json(result);
@@ -47,10 +47,10 @@ export async function deleteTrack(req, res) {
  * @returns {Response} res - The response
  */
 export async function insertTrack(req, res) {
-	if (!req.session.userId) return res.status(401).json({ error: "Unauthorized" });
+	if (!req.body.userId) return res.status(401).json({ error: "Unauthorized" });
 	try {
 		const track = {};
-		const permission = await checkUserPermissions(req.session.userId);
+		const permission = await checkUserPermissions(req.body.userId);
 		if (permission?.error) {
 			return res.status(permission.status).json({ error: permission.error });
 		}
@@ -76,7 +76,7 @@ export async function insertTrack(req, res) {
 					track.songUrl = result.url;
 					track.refId = result.refId;
 
-					insertOne("track", { ...track, userId: req.session.userId }).then((result) => {
+					insertOne("track", { ...track, userId: req.body.userId }).then((result) => {
 						if (result.error) return res.status(500).json(result);
 						return res.status(200).json(result);
 					});
@@ -92,9 +92,9 @@ export async function insertTrack(req, res) {
 }
 
 export async function updateTrack(req, res) {
-	if (!req.session.userId) return res.status(401).json({ error: "Unauthorized" });
+	if (!req.body.userId) return res.status(401).json({ error: "Unauthorized" });
 	try {
-		const permission = await checkUserPermissions(req.session.userId);
+		const permission = await checkUserPermissions(req.body.userId);
 		if (permission.error) {
 			return res.status(permission.status).json({ error: permission.error });
 		}
@@ -106,7 +106,7 @@ export async function updateTrack(req, res) {
 		}
 		if (Object.keys(result).length === 0) return res.status(404).json({ error: "Track not found" });
 
-		if (result.userId !== req.session.userId) return res.status(403).json({ error: "You are not allowed to update this track" });
+		if (result.userId !== req.body.userId) return res.status(403).json({ error: "You are not allowed to update this track" });
 
 		const updateResult = await updateOne(
 			"track",

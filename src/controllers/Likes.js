@@ -7,7 +7,7 @@ import { findOne, insertOne, find, deleteOne } from "../utils/dbComponent.js";
  * @returns {Response} res - The response
  */
 export async function toggleLike(req, res) {
-	const userId = req.session.userId;
+	const userId = req.body.userId;
 	const songRefId = req.body.songRefId;
 	if (!userId) {
 		return res.status(401).json({ error: "Unauthorized" });
@@ -42,7 +42,7 @@ export async function toggleLike(req, res) {
  * @returns {Response} res - The response
  */
 export async function getLikedSongs(req, res) {
-	const userId = req.session.userId;
+	const userId = req.body.userId;
 	if (!userId) {
 		return res.status(401).json({ error: "Unauthorized" });
 	}

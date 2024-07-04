@@ -9,7 +9,7 @@ import bcrypt from "bcrypt";
  * @param {String} req.body.newPassword - Required
  */
 export async function updateUserPassword(req, res) {
-	if (!req.session.userId) {
+	if (!req.body.userId) {
 		res.status(401).send({ message: "Unauthorized" });
 		return;
 	}
@@ -22,7 +22,7 @@ export async function updateUserPassword(req, res) {
 		return;
 	}
 	try {
-		const user = await findOne("users", { _id: ObjectId.createFromHexString(req.session.userId) });
+		const user = await findOne("users", { _id: ObjectId.createFromHexString(req.body.userId) });
 		if (Object.keys(user).length === 0) {
 			res.status(400).send({ message: "User does not exist" });
 			return;
@@ -36,7 +36,7 @@ export async function updateUserPassword(req, res) {
 
 		const salt = await bcrypt.genSalt(10);
 		const password = await bcrypt.hash(req.body.newPassword, salt);
-		const result = await updateOne("users", { _id: ObjectId.createFromHexString(req.session.userId) }, { user_password: password });
+		const result = await updateOne("users", { _id: ObjectId.createFromHexString(req.body.userId) }, { user_password: password });
 		if (result.error) return res.status(500).send({ message: "Error updating user" });
 
 		res.status(200).send({ message: "User updated" });
