@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import { findOne, insertOne } from "../utils/dbComponent.js";
+import { ObjectId } from "mongodb";
 
 /**
  * Register a new user
