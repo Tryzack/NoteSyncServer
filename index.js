@@ -32,9 +32,10 @@ const sessionOptions = {
 
 app.use(
 	cors({
-		origin: "*", // all origins
-		methods: ["GET", "POST", "PUT", "DELETE"],
-		allowedHeaders: ["Content-Type", "Authorization"],
+		origin: function (origin, callback) {
+			return callback(null, true);
+		},
+		credentials: true,
 	})
 );
 
