@@ -83,3 +83,26 @@ export function checkSession(req, res) {
 export function logout(req, res) {
 	res.send({ message: "Logged out" });
 }
+
+export async function unregister(req, res) {
+	if (!req.body.userId) {
+		res.status(401).send({ message: "Unauthorized" });
+		return;
+	}
+	try {
+		const user = await findOne("users", { _id: ObjectId.createFromHexString(req.body.userId) });
+		if (Object.keys(user).length === 0) {
+			res.status(400).send({ message: "User does not exist" });
+			return;
+		}
+		const result = await deleteOne("users", { _id: ObjectId.createFromHexString(req.body.userId) });
+		if (result.error) {
+			res.status(500).send({ message: "Error deleting user" });
+			return;
+		}
+		res.status(200).send({ message: "User deleted" });
+	} catch (error) {
+		console.log(error);
+		res.status(500).send({ message: "Error deleting user" });
+	}
+}

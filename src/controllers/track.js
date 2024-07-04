@@ -60,6 +60,7 @@ export async function insertTrack(req, res) {
 				if (err) return res.status(500).json({ error: err });
 				const filePath = files["songFile"][0]?.filepath;
 				if (!filePath) return res.status(400).json({ error: "Song file is required" });
+				if (!fields["songName"] || !fields["songArtist"]) return res.status(400).json({ error: "Missing fields" });
 				track.name = fields["songName"][0];
 				track.artists = fields["songArtist"];
 				track.cover_img = [];
@@ -69,7 +70,7 @@ export async function insertTrack(req, res) {
 				track.track_number = fields["songTrackNumber"] ? parseInt(fields["songTrackNumber"][0]) : 1;
 				track.album = "";
 				track.album_refId = "";
-				track.genres = fields["songGenres"]; // ? fields["songGenres"].split(",") : [];
+				track.genres = fields["songGenres"];
 				track.popularity = 100;
 				uploadSong(filePath).then((result) => {
 					if (result.error) return res.status(500).json(result);

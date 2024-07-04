@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { login, register, checkSession, logout } from "./controllers/auth.js";
+import { login, register, checkSession, logout, unregister } from "./controllers/auth.js";
 import searchTracksByName from "./controllers/search/searchTracksByName.js";
 import searchTracksByGenre from "./controllers/search/searchTracksByGenre.js";
 import searchAlbums from "./controllers/search/searchAlbum.js";
@@ -22,6 +22,7 @@ routes.post("/auth/login", login);
 routes.post("/auth/register", register);
 routes.get("/auth/checkSession", checkSession);
 routes.get("/auth/logout", logout);
+routes.get("/auth/unregister", unregister);
 
 routes.get("/search/TracksByName", searchTracksByName);
 routes.get("/search/TracksByGenre", searchTracksByGenre);
