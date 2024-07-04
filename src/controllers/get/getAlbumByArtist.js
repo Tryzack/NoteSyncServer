@@ -65,6 +65,7 @@ export default async function getAlbumByArtist(req, res) {
 							return { name: artist.name, id: artist.id };
 						}),
 						total_tracks: album.total_tracks,
+						type: "Album",
 					});
 				}
 				const insertResult = await insertMany("album", insertAlbums);
@@ -99,9 +100,10 @@ async function usegetSpotify(reqFilter, skip, limit, newAlbumIDs, newAlbums, res
 			release_date: item.release_date,
 			images: [...item.images],
 			artists: item.artists.map((artist) => {
-				return { name: artist.name, id: artist.id };
+				return artist.id;
 			}),
 			total_tracks: item.total_tracks,
+			type: "Album",
 		};
 		console.log("album", album);
 		if (!result.find((album) => album.refId === item.id)) {

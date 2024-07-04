@@ -7,10 +7,10 @@ import { ObjectId } from "mongodb";
  * @returns {Response} res - The response
  */
 export async function getPlaylists(req, res) {
-	if (!req.body.userId) {
+	if (!req.query.userId) {
 		return res.status(401).json({ error: "Unauthorized" });
 	}
-	const result = await find("playlist", { userId: req.body.userId });
+	const result = await find("playlist", { userId: req.query.userId });
 	if (result.error) {
 		return res.status(500).json(result);
 	}
