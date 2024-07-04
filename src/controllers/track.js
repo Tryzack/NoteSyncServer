@@ -47,7 +47,6 @@ export async function deleteTrack(req, res) {
  * @returns {Response} res - The response
  */
 export async function insertTrack(req, res) {
-	if (!req.body.userId) return res.status(401).json({ error: "Unauthorized" });
 	try {
 		const track = {};
 		const permission = await checkUserPermissions(req.body.userId);
@@ -56,6 +55,7 @@ export async function insertTrack(req, res) {
 		}
 		const form = formidable({ multiple: false });
 		form.parse(req, (err, fields, files) => {
+			if (!fields["userId"]?.[0]) return res.status(401).json({ error: "Unauthorized" });
 			try {
 				if (err) return res.status(500).json({ error: err });
 				const filePath = files["songFile"][0]?.filepath;
@@ -76,7 +76,7 @@ export async function insertTrack(req, res) {
 					track.songUrl = result.url;
 					track.refId = result.refId;
 
-					insertOne("track", { ...track, userId: req.body.userId }).then((result) => {
+					insertOne("track", { ...track, userId: req.fields["userId"][0] }).then((result) => {
 						if (result.error) return res.status(500).json(result);
 						return res.status(200).json(result);
 					});
