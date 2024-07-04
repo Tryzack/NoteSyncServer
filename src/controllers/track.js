@@ -49,13 +49,13 @@ export async function deleteTrack(req, res) {
 export async function insertTrack(req, res) {
 	try {
 		const track = {};
-		const permission = await checkUserPermissions(req.body.userId);
-		if (permission?.error) {
-			return res.status(permission.status).json({ error: permission.error });
-		}
 		const form = formidable({ multiple: false });
-		form.parse(req, (err, fields, files) => {
+		form.parse(req, async (err, fields, files) => {
 			if (!fields["userId"]?.[0]) return res.status(401).json({ error: "Unauthorized" });
+			const permission = await checkUserPermissions(fields["userId"][0]);
+			if (permission?.error) {
+				return res.status(permission.status).json({ error: permission.error });
+			}
 			try {
 				if (err) return res.status(500).json({ error: err });
 				const filePath = files["songFile"][0]?.filepath;
