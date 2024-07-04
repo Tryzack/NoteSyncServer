@@ -22,7 +22,7 @@ routes.post("/auth/login", login);
 routes.post("/auth/register", register);
 routes.get("/auth/checkSession", checkSession);
 routes.get("/auth/logout", logout);
-routes.get("/auth/unregister", unregister);
+routes.delete("/auth/unregister", unregister);
 
 routes.get("/search/TracksByName", searchTracksByName);
 routes.get("/search/TracksByGenre", searchTracksByGenre);
