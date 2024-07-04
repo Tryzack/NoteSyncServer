@@ -136,13 +136,15 @@ async function useSearchSpotify(reqFilter, skip, limit, newAlbumIDs, newArtists,
 		});
 		newAlbums.push(item);
 		newAlbumIDs.push(item.id);
-
+		console.log(item.artists);
 		const album = {
 			refId: item.id,
 			name: item.name,
 			release_date: item.release_date,
 			cover_img: [...item.images],
-			artists: item.artists || [],
+			artists: item.artists.map((artist) => {
+				return artist.name;
+			}),
 			total_tracks: item.total_tracks,
 			type: "Album",
 		};
