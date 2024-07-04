@@ -51,7 +51,7 @@ export async function insertTrack(req, res) {
 		const track = {};
 		const form = formidable({ multiple: false });
 		form.parse(req, async (err, fields, files) => {
-			if (!fields["userId"]?.[0]) return res.status(401).json({ error: "Unauthorized" });
+			if (!fields["userId"][0]) return res.status(401).json({ error: "Unauthorized" });
 			const permission = await checkUserPermissions(fields["userId"][0]);
 			if (permission?.error) {
 				return res.status(permission.status).json({ error: permission.error });
