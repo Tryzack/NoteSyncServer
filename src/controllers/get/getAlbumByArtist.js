@@ -57,7 +57,7 @@ export default async function getAlbumByArtist(req, res) {
 				const insertAlbums = [];
 				for (const album of anotherNewAlbums) {
 					insertAlbums.push({
-						refId: album.refId,
+						refId: album.id,
 						name: album.name,
 						release_date: album.release_date,
 						images: [...album.images],
