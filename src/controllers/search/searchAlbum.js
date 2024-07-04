@@ -130,52 +130,40 @@ async function useSearchSpotify(reqFilter, skip, limit, newAlbumIDs, newArtists,
 	const toPush = [];
 
 	for (const item of items) {
-		const genres = [];
-		await getSpotifyArtists(item.artists.map((artist) => artist.id)).then((artists) => {
-			artists.artists.forEach((artist) => {
-				artist.genres.forEach((genre) => {
-					if (!genres.includes(genre)) {
-						genres.push(genre);
-					}
-				});
-				item.artists.forEach((artist) => {
-					newArtists.push(artist);
-					newArtistIDs.push(artist.id);
-				});
-
-				newAlbums.push(item);
-				newAlbumIDs.push(item.id);
-
-				const album = {
-					refId: item.id,
-					name: item.name,
-					release_date: item.release_date,
-					cover_img: [...item.images],
-					artists: item.artists.map((artist) => {
-						return { name: artist.name, id: artist.id };
-					}),
-					total_tracks: item.total_tracks,
-					type: "Album",
-				};
-				console.log(item);
-
-				if (!result.find((album) => album.refId === item.id)) toPush.push(album); // Only add if not already in the database
-			});
+		item.artists.forEach((artist) => {
+			newArtists.push(artist);
+			newArtistIDs.push(artist.id);
 		});
-		const alreadyInDatabase = await find("album", { refId: { $in: newAlbumIDs } });
-		if (alreadyInDatabase.error) {
-			console.log("Error finding albums", alreadyInDatabase.error);
-			return res.status(500).json({ error: "Internal server error" });
-		}
+		newAlbums.push(item);
+		newAlbumIDs.push(item.id);
 
-		for (const element of toPush) {
-			if (!alreadyInDatabase.find((album) => album.refId === element.id)) {
-				responseAlbums.push(element);
-			}
-		}
+		const album = {
+			refId: item.id,
+			name: item.name,
+			release_date: item.release_date,
+			cover_img: [...item.images],
+			artists: item.artists.map((artist) => {
+				return { name: artist.name, id: artist.id };
+			}),
+			total_tracks: item.total_tracks,
+			type: "Album",
+		};
+		if (!result.find((album) => album.refId === item.id)) toPush.push(album); // Only add if not already in the database
+	}
 
-		if (spotifyResult.albums.items.length < limit) {
-			return;
+	const alreadyInDatabase = await find("album", { refId: { $in: newAlbumIDs } });
+	if (alreadyInDatabase.error) {
+		console.log("Error finding albums", alreadyInDatabase.error);
+		return res.status(500).json({ error: "Internal server error" });
+	}
+
+	for (const element of toPush) {
+		if (!alreadyInDatabase.find((album) => album.refId === element.id)) {
+			responseAlbums.push(element);
 		}
+	}
+
+	if (spotifyResult.albums.items.length < limit) {
+		return;
 	}
 }
