@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { findOne, insertOne } from "../utils/dbComponent.js";
+import { findOne, insertOne, deleteOne } from "../utils/dbComponent.js";
 import { ObjectId } from "mongodb";
 
 /**
