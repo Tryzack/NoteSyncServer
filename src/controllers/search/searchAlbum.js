@@ -142,9 +142,7 @@ async function useSearchSpotify(reqFilter, skip, limit, newAlbumIDs, newArtists,
 			name: item.name,
 			release_date: item.release_date,
 			cover_img: [...item.images],
-			artists: item.artists.map((artist) => {
-				return { name: artist.name, id: artist.id };
-			}),
+			artists: item.artists || [],
 			total_tracks: item.total_tracks,
 			type: "Album",
 		};
