@@ -238,7 +238,7 @@ async function usegetSpotify(reqFilter, skip, limit, newTrackIDs, newArtists, ne
 					popularity: item.popularity,
 				};
 
-				if (!result.find((track) => track.refId === item.id)) toPush.push(track); // Only add if not already in the database
+				if (!result.find((track) => track.id === item.id)) toPush.push(track); // Only add if not already in the database
 			});
 		} catch (error) {
 			console.log(error);

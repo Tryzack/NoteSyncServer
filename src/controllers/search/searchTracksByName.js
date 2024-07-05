@@ -86,7 +86,7 @@ export default async function searchTracksByName(req, res) {
 		}
 
 		newTrackIDs.forEach((id, index) => {
-			if (!trackResult.find((track) => track.refId === id)) {
+			if (!trackResult.find((track) => track.id === id)) {
 				if (!anotherNewTracks.find((track) => track.id === id)) {
 					anotherNewTracks.push(newTracks[index]);
 				}
@@ -238,7 +238,7 @@ async function useSearchSpotify(
 				type: "Song",
 			};
 
-			if (!result.find((track) => track.refId === item.id)) toPush.push(track); // Only add if not already in the database
+			if (!result.find((track) => track.id === item.id)) toPush.push(track); // Only add if not already in the database
 		});
 	}
 	const alreadyInDatabase = await find("track", { refId: { $in: newTrackIDs } });
