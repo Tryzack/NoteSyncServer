@@ -75,7 +75,7 @@ export async function insertTrack(req, res) {
 				uploadSong(filePath).then((result) => {
 					if (result.error) return res.status(500).json(result);
 					track.songUrl = result.url;
-					track.refId = result.refId;
+					track.id = result.refId;
 
 					insertOne("track", { ...track, userId: fields["userId"][0] }).then((result) => {
 						if (result.error) return res.status(500).json(result);

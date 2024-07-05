@@ -252,7 +252,7 @@ async function usegetSpotify(reqFilter, skip, limit, newTrackIDs, newArtists, ne
 	}
 
 	for (const element of toPush) {
-		if (!alreadyInDatabase.find((track) => track.refId === element.id)) {
+		if (!alreadyInDatabase.find((track) => track.id === element.id)) {
 			responseTracks.push(element);
 		}
 	}
