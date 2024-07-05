@@ -224,7 +224,7 @@ async function usegetSpotify(reqFilter, skip, limit, newTrackIDs, newArtists, ne
 					id: item.id,
 					name: item.name,
 					url: item.preview_url,
-					cover_img: [...newAlbums[0].images],
+					cover_img: newAlbums[0].images ?? [],
 					release_date: newAlbums[0].release_date,
 					duration_ms: item.duration_ms,
 					disc_number: item.disc_number,
