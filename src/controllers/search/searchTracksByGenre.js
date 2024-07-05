@@ -229,7 +229,7 @@ async function useSearchSpotify(
 				track_number: item.track_number,
 				album: item.album.name,
 				album_refId: item.album.id,
-				artists: track.artists.map((artist) => {
+				artists: item.artists.map((artist) => {
 					return { name: artist.name, id: artist.id };
 				}),
 				genres: genres,

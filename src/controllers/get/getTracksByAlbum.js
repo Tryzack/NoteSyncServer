@@ -231,7 +231,7 @@ async function usegetSpotify(reqFilter, skip, limit, newTrackIDs, newArtists, ne
 					track_number: item.track_number,
 					album: newAlbums[0].name,
 					album_refId: reqFilter,
-					artists: track.artists.map((artist) => {
+					artists: item.artists.map((artist) => {
 						return { name: artist.name, id: artist.id };
 					}),
 					genres: genres,
