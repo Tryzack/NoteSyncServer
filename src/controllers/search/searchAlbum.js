@@ -93,8 +93,9 @@ export default async function searchAlbums(req, res) {
 			if (anotherNewAlbums.length > 0) {
 				const insertAlbums = [];
 				for (const album of anotherNewAlbums) {
+					console.log(album);
 					insertAlbums.push({
-						refId: album.refId,
+						refId: album.id,
 						name: album.name,
 						release_date: album.release_date,
 						cover_img: [...album.images],
