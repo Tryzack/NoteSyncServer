@@ -167,7 +167,7 @@ export default async function getTracksByAlbum(req, res) {
 						id: track.id,
 						name: track.name,
 						url: track.preview_url,
-						cover_img: [...newAlbums[0].images],
+						cover_img: newAlbums[0].images ?? [],
 						release_date: newAlbums[0].release_date,
 						duration_ms: track.duration_ms,
 						disc_number: track.disc_number,
