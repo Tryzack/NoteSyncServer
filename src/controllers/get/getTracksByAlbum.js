@@ -194,7 +194,7 @@ async function usegetSpotify(reqFilter, skip, limit, newTrackIDs, newArtists, ne
 	const spotifyResult = await getSpotifyTracksByAlbum(reqFilter, skip, limit);
 	if (spotifyResult.error) {
 		console.log("Error geting spotify", spotifyResult.error);
-		return res.status(500).json({ error: "Internal server error" });
+		return { error: "Internal server error" };
 	}
 	const items = spotifyResult.items || [];
 	const toPush = [];
@@ -239,7 +239,7 @@ async function usegetSpotify(reqFilter, skip, limit, newTrackIDs, newArtists, ne
 	const alreadyInDatabase = await find("track", { refId: { $in: newTrackIDs } });
 	if (alreadyInDatabase.error) {
 		console.log("Error finding tracks", alreadyInDatabase.error);
-		return res.status(500).json({ error: "Internal server error" });
+		return { error: "Internal server error" };
 	}
 
 	for (const element of toPush) {
