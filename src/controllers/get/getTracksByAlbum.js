@@ -104,7 +104,7 @@ export default async function getTracksByAlbum(req, res) {
 		}
 
 		newTrackIDs.forEach((id, index) => {
-			if (!trackResult.find((track) => track.refId === id)) {
+			if (!trackResult.find((track) => track.id === id)) {
 				if (!anotherNewTracks.find((track) => track.id === id)) {
 					anotherNewTracks.push(newTracks[index]);
 				}
