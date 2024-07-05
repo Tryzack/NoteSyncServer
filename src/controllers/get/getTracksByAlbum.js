@@ -203,42 +203,47 @@ async function usegetSpotify(reqFilter, skip, limit, newTrackIDs, newArtists, ne
 
 	for (const item of items) {
 		const genres = [];
-		await getSpotifyArtists(item.artists.map((artist) => artist.id)).then((artists) => {
-			artists.artists.forEach((artist) => {
-				artist.genres.forEach((genre) => {
-					if (!genres.includes(genre)) {
-						genres.push(genre);
-					}
+		try {
+			await getSpotifyArtists(item.artists.map((artist) => artist.id)).then((artists) => {
+				artists.artists.forEach((artist) => {
+					artist.genres.forEach((genre) => {
+						if (!genres.includes(genre)) {
+							genres.push(genre);
+						}
+					});
 				});
+				item.artists.forEach((artist) => {
+					newArtists.push(artist);
+					newArtistIDs.push(artist.id);
+				});
+
+				newTracks.push(item);
+				newTrackIDs.push(item.id);
+
+				const track = {
+					id: item.id,
+					name: item.name,
+					url: item.preview_url,
+					cover_img: [...newAlbums[0].images],
+					release_date: newAlbums[0].release_date,
+					duration_ms: item.duration_ms,
+					disc_number: item.disc_number,
+					track_number: item.track_number,
+					album: newAlbums[0].name,
+					album_refId: reqFilter,
+					artists: track.artists.map((artist) => {
+						return { name: artist.name, id: artist.id };
+					}),
+					genres: genres,
+					popularity: item.popularity,
+				};
+
+				if (!result.find((track) => track.refId === item.id)) toPush.push(track); // Only add if not already in the database
 			});
-			item.artists.forEach((artist) => {
-				newArtists.push(artist);
-				newArtistIDs.push(artist.id);
-			});
-
-			newTracks.push(item);
-			newTrackIDs.push(item.id);
-
-			const track = {
-				id: item.id,
-				name: item.name,
-				url: item.preview_url,
-				cover_img: [...newAlbums[0].images],
-				release_date: newAlbums[0].release_date,
-				duration_ms: item.duration_ms,
-				disc_number: item.disc_number,
-				track_number: item.track_number,
-				album: newAlbums[0].name,
-				album_refId: reqFilter,
-				artists: track.artists.map((artist) => {
-					return { name: artist.name, id: artist.id };
-				}),
-				genres: genres,
-				popularity: item.popularity,
-			};
-
-			if (!result.find((track) => track.refId === item.id)) toPush.push(track); // Only add if not already in the database
-		});
+		} catch (error) {
+			console.log(error);
+			return { error: "Internal server error" };
+		}
 	}
 	const alreadyInDatabase = await find("track", { refId: { $in: newTrackIDs } });
 	if (alreadyInDatabase.error) {
