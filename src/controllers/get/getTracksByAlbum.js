@@ -164,7 +164,7 @@ export default async function getTracksByAlbum(req, res) {
 						});
 					});
 					insertTracks.push({
-						refId: track.id,
+						id: track.id,
 						name: track.name,
 						url: track.preview_url,
 						cover_img: [...newAlbums[0].images],
