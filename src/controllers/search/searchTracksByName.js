@@ -146,7 +146,7 @@ export default async function searchTracksByName(req, res) {
 						});
 					});
 					insertTracks.push({
-						refId: track.id,
+						id: track.id,
 						name: track.name,
 						url: track.preview_url,
 						cover_img: [...track.album.images],
@@ -249,7 +249,7 @@ async function useSearchSpotify(
 	}
 
 	for (const element of toPush) {
-		if (!alreadyInDatabase.find((track) => track.refId === element.id)) {
+		if (!alreadyInDatabase.find((track) => track.id === element.id)) {
 			responseTracks.push(element);
 		}
 	}

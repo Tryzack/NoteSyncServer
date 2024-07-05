@@ -86,7 +86,7 @@ export default async function searchTracksByGenre(req, res) {
 		}
 
 		newTrackIDs.forEach((id, index) => {
-			if (!trackResult.find((track) => track.refId === id)) {
+			if (!trackResult.find((track) => track.id === id)) {
 				if (!anotherNewTracks.find((track) => track.id === id)) {
 					anotherNewTracks.push(newTracks[index]);
 				}
@@ -146,7 +146,7 @@ export default async function searchTracksByGenre(req, res) {
 						});
 					});
 					insertTracks.push({
-						refId: track.id,
+						id: track.id,
 						name: track.name,
 						url: track.preview_url,
 						cover_img: [...track.album.images],
