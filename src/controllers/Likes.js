@@ -50,7 +50,7 @@ export async function getLikedSongs(req, res) {
 	if (likes.error) {
 		return res.status(500).json(likes);
 	}
-	const songResult = await find("track", { refId: { $in: likes.map((like) => like.songRefId) } });
+	const songResult = await find("track", { id: { $in: likes.map((like) => like.songRefId) } });
 	if (songResult.error) {
 		return res.status(500).json(songResult);
 	}

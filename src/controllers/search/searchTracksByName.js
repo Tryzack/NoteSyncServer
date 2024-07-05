@@ -80,7 +80,7 @@ export default async function searchTracksByName(req, res) {
 			}
 		});
 
-		const trackResult = await find("track", { refId: { $in: newTrackIDs } });
+		const trackResult = await find("track", { id: { $in: newTrackIDs } });
 		if (trackResult.error) {
 			console.log("Error finding tracks", trackResult.error);
 		}
@@ -241,7 +241,7 @@ async function useSearchSpotify(
 			if (!result.find((track) => track.id === item.id)) toPush.push(track); // Only add if not already in the database
 		});
 	}
-	const alreadyInDatabase = await find("track", { refId: { $in: newTrackIDs } });
+	const alreadyInDatabase = await find("track", { id: { $in: newTrackIDs } });
 	console.log(alreadyInDatabase);
 	if (alreadyInDatabase.error) {
 		console.log("Error finding tracks", alreadyInDatabase.error);

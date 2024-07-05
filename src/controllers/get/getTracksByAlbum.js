@@ -98,7 +98,7 @@ export default async function getTracksByAlbum(req, res) {
 			}
 		});
 
-		const trackResult = await find("track", { refId: { $in: newTrackIDs } });
+		const trackResult = await find("track", { id: { $in: newTrackIDs } });
 		if (trackResult.error) {
 			console.log("Error finding tracks", trackResult.error);
 		}
@@ -245,7 +245,7 @@ async function usegetSpotify(reqFilter, skip, limit, newTrackIDs, newArtists, ne
 			return { error: "Internal server error" };
 		}
 	}
-	const alreadyInDatabase = await find("track", { refId: { $in: newTrackIDs } });
+	const alreadyInDatabase = await find("track", { id: { $in: newTrackIDs } });
 	if (alreadyInDatabase.error) {
 		console.log("Error finding tracks", alreadyInDatabase.error);
 		return { error: "Internal server error" };

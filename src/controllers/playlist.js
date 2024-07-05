@@ -16,7 +16,7 @@ export async function getPlaylists(req, res) {
 	}
 	for (const playlist of result) {
 		const songIds = playlist.songIds;
-		const songs = await find("track", { refId: { $in: songIds } });
+		const songs = await find("track", { id: { $in: songIds } });
 		playlist.songs = songs;
 	}
 	return res.status(200).json(result);

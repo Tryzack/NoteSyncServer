@@ -80,7 +80,7 @@ export default async function searchTracksByGenre(req, res) {
 			}
 		});
 
-		const trackResult = await find("track", { refId: { $in: newTrackIDs } });
+		const trackResult = await find("track", { id: { $in: newTrackIDs } });
 		if (trackResult.error) {
 			console.log("Error finding tracks", trackResult.error);
 		}
@@ -238,17 +238,17 @@ async function useSearchSpotify(
 				type: "Song",
 			};
 
-			if (!result.find((track) => track.refId === item.id)) toPush.push(track); // Only add if not already in the database
+			if (!result.find((track) => track.id === item.id)) toPush.push(track); // Only add if not already in the database
 		});
 	}
-	const alreadyInDatabase = await find("track", { refId: { $in: newTrackIDs } });
+	const alreadyInDatabase = await find("track", { id: { $in: newTrackIDs } });
 	if (alreadyInDatabase.error) {
 		console.log("Error finding tracks", alreadyInDatabase.error);
 		return res.status(500).json({ error: "Internal server error" });
 	}
 
 	for (const element of toPush) {
-		if (!alreadyInDatabase.find((track) => track.refId === element.id)) {
+		if (!alreadyInDatabase.find((track) => track.id === element.id)) {
 			responseTracks.push(element);
 		}
 	}
