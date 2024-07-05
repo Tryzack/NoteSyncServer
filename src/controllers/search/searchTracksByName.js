@@ -156,7 +156,9 @@ export default async function searchTracksByName(req, res) {
 						track_number: track.track_number,
 						album: track.album.name,
 						album_refId: track.album.id,
-						artists: track.artists.map((artist) => artist.name),
+						artists: track.artists.map((artist) => {
+							return { name: artist.name, id: artist.id };
+						}),
 						genres: genres,
 						explicit: track.explicit,
 						popularity: track.popularity,
@@ -227,7 +229,9 @@ async function useSearchSpotify(
 				track_number: item.track_number,
 				album: item.album.name,
 				album_refId: item.album.id,
-				artists: item.artists.map((artist) => artist.name),
+				artists: track.artists.map((artist) => {
+					return { name: artist.name, id: artist.id };
+				}),
 				genres: genres,
 				explicit: item.explicit,
 				popularity: item.popularity,
