@@ -16,6 +16,8 @@ import { recoveryCode, recoveryPassword, forgotPassword } from "./controllers/up
 
 import { getPlaylists, insertPlaylist, deletePlaylist, updatePlaylist } from "./controllers/playlist.js";
 
+import { getArtist } from "./controllers/artist.js";
+
 const routes = Router();
 
 routes.post("/auth/login", login);
@@ -33,6 +35,8 @@ routes.get("/get/TracksByAlbum", getTracksByAlbum);
 routes.get("/get/AlbumByArtist", getAlbumByArtist);
 routes.get("/get/uploadedTracks", getUploadedTracks);
 routes.get("/get/likedSongs", getLikedSongs);
+
+routes.get("/artist", getArtist);
 
 routes.post("/track", insertTrack);
 routes.put("/track", updateTrack);
