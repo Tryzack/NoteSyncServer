@@ -1,8 +1,16 @@
-import { insertOne, updateOne, deleteOne, findOne, checkUserPermissions } from "../utils/dbComponent.js";
+import { insertOne, updateOne, deleteOne, findOne, checkUserPermissions, getRandomDocuments } from "../utils/dbComponent.js";
 
 export async function getAlbum(req, res) {
 	const album = req.query.albumId;
 	const result = await findOne("album", { _id: album });
+	if (result.error) {
+		return res.status(500).json(result);
+	}
+	return res.status(200).json(result);
+}
+
+export async function getRandomAlbums(req, res) {
+	const result = await getRandomDocuments("album", 10);
 	if (result.error) {
 		return res.status(500).json(result);
 	}

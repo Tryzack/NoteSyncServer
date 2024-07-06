@@ -198,3 +198,15 @@ export async function checkUserPermissions(id) {
 		return { error: "Database error" + error, status: 500 };
 	}
 }
+
+export async function getRandomDocuments(collectionName, limit) {
+	try {
+		const db = await getDB();
+		const collection = db.collection(collectionName);
+		const result = await collection.aggregate([{ $sample: { size: limit } }]).toArray();
+		return result;
+	} catch (error) {
+		console.error("Error finding data", error);
+		return { error: "Internal server error" };
+	}
+}

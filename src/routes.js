@@ -18,6 +18,7 @@ import { getPlaylists, insertPlaylist, deletePlaylist, updatePlaylist } from "./
 
 import { getArtist } from "./controllers/artist.js";
 
+import { getRandomAlbums } from "./controllers/album.js";
 const routes = Router();
 
 routes.post("/auth/login", login);
@@ -35,6 +36,7 @@ routes.get("/get/TracksByAlbum", getTracksByAlbum);
 routes.get("/get/AlbumByArtist", getAlbumByArtist);
 routes.get("/get/uploadedTracks", getUploadedTracks);
 routes.get("/get/likedSongs", getLikedSongs);
+routes.get("/get/randomAlbums", getRandomAlbums);
 
 routes.get("/artist", getArtist);
 
