@@ -30,6 +30,8 @@ export async function recoveryCode(req, res) {
 		}
 		if (keys[user.id].key !== req.body.code) {
 			console.log("invalid code");
+			console.log(keys[user.id].key, req.body.code);
+			console.log(typeof keys[user.id].key, typeof req.body.code);
 			res.status(400).send({ message: "Invalid code" });
 			return;
 		}
