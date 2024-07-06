@@ -10,7 +10,7 @@ export async function getAlbum(req, res) {
 }
 
 export async function getRandomAlbums(req, res) {
-	const result = await getRandomDocuments("album", 10);
+	const result = await getRandomDocuments("album", 4);
 	if (result.error) {
 		return res.status(500).json(result);
 	}
