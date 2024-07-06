@@ -57,7 +57,15 @@ export async function login(req, res) {
 		}
 		if (await bcrypt.compare(req.body.password, user.user_password)) {
 			req.session.userId = user._id;
-			res.send({ message: "Logged in", sessionId: user._id, isArtist: user.artist ?? false });
+			let artistResult;
+			if (user.artist) {
+				artistResult = await findOne("artist", { refId: user.artist });
+			}
+			res.send({
+				message: "Logged in",
+				sessionId: user._id,
+				isArtist: user.artist ? { name: artistResult.name, id: artistResult.refId, url: artistResult.images?.[0]?.url || "" } : false,
+			});
 		} else {
 			res.status(401).send({ message: "Incorrect Password" });
 		}
