@@ -12,6 +12,9 @@ import getAlbumByArtist from "./controllers/get/getAlbumByArtist.js";
 import { getUploadedTracks, updateTrack, insertTrack, deleteTrack } from "./controllers/track.js";
 import { toggleLike, getLikedSongs } from "./controllers/Likes.js";
 
+import { updateUserEmail } from "./controllers/update/updateEmail.js";
+import { updateUserPassword } from "./controllers/update/updateUserPassword.js";
+
 import { recoveryCode, recoveryPassword, forgotPassword } from "./controllers/update/RecoveryPassword.js";
 
 import { getPlaylists, insertPlaylist, deletePlaylist, updatePlaylist } from "./controllers/playlist.js";
@@ -26,6 +29,9 @@ routes.post("/auth/register", register);
 routes.get("/auth/checkSession", checkSession);
 routes.get("/auth/logout", logout);
 routes.delete("/auth/unregister", unregister);
+
+routes.put("/update/email", updateUserEmail);
+routes.put("/update/password", updateUserPassword);
 
 routes.get("/search/TracksByName", searchTracksByName);
 routes.get("/search/TracksByGenre", searchTracksByGenre);
