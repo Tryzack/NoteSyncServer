@@ -138,6 +138,9 @@ export default async function searchTracksByGenre(req, res) {
 			for (const track of anotherNewTracks) {
 				const genres = [];
 				await getSpotifyArtists(track.artists.map((artist) => artist.id)).then((artists) => {
+					if (typeof artists.artists !== "array" || typeof artists.artists !== "object") {
+						return;
+					}
 					artists.artists.forEach((artist) => {
 						artist.genres.forEach((genre) => {
 							if (!genres.includes(genre)) {
