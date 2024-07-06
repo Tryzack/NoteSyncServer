@@ -29,9 +29,6 @@ export async function recoveryCode(req, res) {
 			return;
 		}
 		if (keys[user.id].key !== req.body.code) {
-			console.log("invalid code");
-			console.log(keys[user.id].key, req.body.code);
-			console.log(typeof keys[user.id].key, typeof req.body.code);
 			res.status(400).send({ message: "Invalid code" });
 			return;
 		}
@@ -168,7 +165,7 @@ export async function recoveryPassword(req, res) {
 			return;
 		}
 		const newPassword = await bcrypt.hash(req.body.newPassword, 10);
-		const result = await updateOne("users", { _id: ObjectId.createFromHexString(user._id) }, { user_password: newPassword });
+		const result = await updateOne("users", { _id: user._id }, { user_password: newPassword });
 		if (!result) {
 			res.status(500).send({ message: "Error updating password" });
 			return;
