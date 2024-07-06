@@ -42,7 +42,7 @@ export async function toggleLike(req, res) {
  * @returns {Response} res - The response
  */
 export async function getLikedSongs(req, res) {
-	const userId = req.body.userId;
+	const userId = req.query.userId;
 	if (!userId) {
 		return res.status(401).json({ error: "Unauthorized" });
 	}
