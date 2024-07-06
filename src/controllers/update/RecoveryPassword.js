@@ -18,15 +18,18 @@ export async function recoveryCode(req, res) {
 	try {
 		const user = await findOne("users", { user_email: req.body.email });
 		if (Object.keys(user).length === 0) {
+			console.log("user does not exist");
 			res.status(400).send({ message: "User does not exist" });
 			return;
 		}
 		const keys = getResetKeys();
 		if (!keys[user.id]) {
+			console.log("no key");
 			res.status(400).send({ message: "No recovery code sent" });
 			return;
 		}
 		if (keys[user.id].key !== req.body.code) {
+			console.log("invalid code");
 			res.status(400).send({ message: "Invalid code" });
 			return;
 		}
@@ -57,7 +60,7 @@ export async function forgotPassword(req, res) {
 			return;
 		}
 		if (keys[user.id]) {
-			res.status(400).send({ message: "A recovery email has already been sent" });
+			res.status(200).send({ message: "A recovery email has already been sent" });
 			return;
 		}
 		const code = Math.floor(100000 + Math.random() * 900000);
@@ -138,19 +141,23 @@ export async function recoveryPassword(req, res) {
 	try {
 		const user = await findOne("users", { user_email: req.body.email });
 		if (Object.keys(user).length === 0) {
+			console.log("user does not exist");
 			res.status(400).send({ message: "User does not exist" });
 			return;
 		}
 		const keys = getResetKeys();
 		if (!keys[user.id]) {
+			console.log("no key");
 			res.status(400).send({ message: "No recovery code sent" });
 			return;
 		}
 		if (!keys[user.id].wasUsed) {
+			console.log("key was not used");
 			res.status(400).send({ message: "Something went wrong" });
 			return;
 		}
 		if (keys[user.id].key !== req.body.code) {
+			console.log("invalid code");
 			res.status(400).send({ message: "Invalid code" });
 			return;
 		}
