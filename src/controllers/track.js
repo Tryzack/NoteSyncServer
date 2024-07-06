@@ -62,7 +62,9 @@ export async function insertTrack(req, res) {
 				if (!filePath) return res.status(400).json({ error: "Song file is required" });
 				if (!fields["songName"] || !fields["songArtist"]) return res.status(400).json({ error: "Missing fields" });
 				track.name = fields["songName"][0];
-				track.artists = fields["songArtist"];
+				track.artists = fields["songArtist"].map((artist) => {
+					return { name: artist };
+				});
 				track.cover_img = [];
 				track.duration_ms = fields["songDuration"] ? parseInt(fields["songDuration"][0]) : 0;
 				track.release_date = fields["songReleaseDate"] ? fields["songReleaseDate"][0] : new Date().toISOString();
@@ -72,9 +74,10 @@ export async function insertTrack(req, res) {
 				track.album_refId = "";
 				track.genres = fields["songGenres"];
 				track.popularity = 100;
+				track.type = "Song";
 				uploadSong(filePath).then((result) => {
 					if (result.error) return res.status(500).json(result);
-					track.songUrl = result.url;
+					track.url = result.url;
 					track.id = result.refId;
 
 					insertOne("track", { ...track, userId: fields["userId"][0] }).then((result) => {
