@@ -32,6 +32,9 @@ export async function deletePlaylist(req, res) {
 	if (!req.body.userId) {
 		return res.status(401).json({ error: "Unauthorized" });
 	}
+	if (!req.body.id) {
+		return res.status(400).json({ error: "Bad request" });
+	}
 	const playlist = req.body.id;
 	const result = await deleteOne("playlist", { _id: ObjectId.createFromHexString(playlist), userId: req.body.userId });
 	if (result.error) {
@@ -79,7 +82,7 @@ export async function updatePlaylist(req, res) {
 		if (!req.body.userId) {
 			return res.status(401).json({ error: "Unauthorized" });
 		}
-		if (!req.body.name) {
+		if (!req.body.name || !req.body.id) {
 			return res.status(400).json({ error: "Bad request" });
 		}
 		const result = await updateOne(

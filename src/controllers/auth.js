@@ -57,7 +57,7 @@ export async function login(req, res) {
 		}
 		if (await bcrypt.compare(req.body.password, user.user_password)) {
 			req.session.userId = user._id;
-			res.send({ message: "Logged in", sessionId: user._id });
+			res.send({ message: "Logged in", sessionId: user._id, isArtist: user.artist ? true : false });
 		} else {
 			res.status(401).send({ message: "Incorrect Password" });
 		}
